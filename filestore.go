@@ -1,11 +1,53 @@
-// Package stringutil contains utility functions for working with strings.
-package lazyfs_go
+package lazyfs
 
-// Reverse returns its argument string reversed rune-wise left to right.
-func Reverse(s string) string {
-	r := []rune(s)
-	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
-		r[i], r[j] = r[j], r[i]
+import (
+	//"io"
+	"os"
+)
+
+type FileStoreError struct {
+	Err string
+}
+
+func (e FileStoreError) Error() string {
+	return e.Err
+}
+
+type FileStore struct {
+	file *os.File
+}
+
+func OpenFileStore( name string ) *FileStore {
+	f,err := os.Open(name)
+	if err != nil {
+		return nil
 	}
-	return string(r)
+	fs := FileStore{ file: f }
+	return &fs
+}
+
+type HasAt interface {
+	HasAt( p []byte, off int64 ) (n int, err error)
+}
+
+func (fs *FileStore) ReadAt( p []byte, off int64) (n int, err error) {
+	return fs.file.ReadAt( p, off )
+}
+
+func (fs *FileStore) HasAt( p []byte, off int64 ) (n int, err error) {
+	len := cap( p )
+	sz := fs.FileSize()
+
+	switch {
+		case (off + int64(len)) < sz: return len, nil
+		case off > sz: return 0, FileStoreError{"Offset beyond end of file"}
+		case off+int64(len) > sz: return int(off+int64(len) - sz), nil
+	}
+
+	return 0, FileStoreError{"Shouldn't get here"}
+}
+
+func (fs *FileStore) FileSize() int64 {
+	stat,_ := fs.file.Stat()
+	return stat.Size()
 }
