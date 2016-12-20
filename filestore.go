@@ -1,7 +1,6 @@
 package lazyfs
 
 import (
-	//"io"
 	"os"
 )
 
@@ -26,12 +25,13 @@ func OpenFileStore( name string ) *FileStore {
 	return &fs
 }
 
-type HasAt interface {
-	HasAt( p []byte, off int64 ) (n int, err error)
-}
-
 func (fs *FileStore) ReadAt( p []byte, off int64) (n int, err error) {
 	return fs.file.ReadAt( p, off )
+}
+
+
+type HasAt interface {
+	HasAt( p []byte, off int64 ) (n int, err error)
 }
 
 func (fs *FileStore) HasAt( p []byte, off int64 ) (n int, err error) {
