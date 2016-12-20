@@ -56,7 +56,7 @@ func TestFileStoreInLazyFS( t *testing.T ) {
   fs := OpenFileStore("test_files/foo.fs")
   if fs == nil { t.Errorf("Couldn't open FileStore") }
 
-  lazyfs := LazyFS { handler: fs }
+  lazyfs := LazyFS { storage: fs }
 
   buf := make([]byte,10)
   n,err := lazyfs.ReadAt(buf, 0)

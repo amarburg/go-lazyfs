@@ -29,6 +29,12 @@ func (fs *FileStore) ReadAt( p []byte, off int64) (n int, err error) {
 	return fs.file.ReadAt( p, off )
 }
 
+func (fs *FileStore) WriteAt(p []byte, off int64) (n int, err error) {
+	return 0,nil
+}
+
+
+
 
 type HasAt interface {
 	HasAt( p []byte, off int64 ) (n int, err error)
