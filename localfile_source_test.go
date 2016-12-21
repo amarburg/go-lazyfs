@@ -4,16 +4,15 @@ import "testing"
 import "io"
 
 
-func TestFileSource(t *testing.T) {
-  filename := LocalAlphabetPath
-  fs,err := OpenFileSource( filename )
+func TestLocalFileSource(t *testing.T) {
+  fs,err := OpenLocalFileSource( LocalFilesRoot, AlphabetPath )
 
   //if fs == nil {
   //  t.Error("FileStore doesn't exist")
   //}
 
   if err != nil {
-    t.Fatal("Error on opening FileSource for",filename)
+    t.Fatal("Error on opening LocalFileSource for", LocalFilesRoot+AlphabetPath)
   }
 
   for _,test := range test_pairs {

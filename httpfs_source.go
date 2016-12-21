@@ -11,5 +11,5 @@ func OpenHttpFSSource( url_root string ) (*HttpFSSource, error) {
 }
 
 func (fs *HttpFSSource ) Open( path string ) (*HttpSource, error) {
-  return OpenHttpSource( fs.url_root + path )
+  return OpenHttpSource( fs.url_root, path )
 }

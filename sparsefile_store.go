@@ -3,6 +3,7 @@ package lazyfs
 import "os"
 
 
+//=====================================
 type SparseFileStoreError struct {
 	Err string
 }
@@ -11,6 +12,8 @@ func (e SparseFileStoreError) Error() string {
 	return e.Err
 }
 
+
+//=====================================
 type SparseFileStore struct {
 	file *os.File
 }
@@ -22,8 +25,7 @@ func OpenSparseFileStore( name string ) (*SparseFileStore,error) {
 	return &fs, err
 }
 
-
-
+//=====================================
 func (fs *SparseFileStore) ReadAt( p []byte, off int64) (n int, err error) {
 	return fs.file.ReadAt( p, off )
 }

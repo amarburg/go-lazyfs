@@ -26,6 +26,10 @@ func OpenSparseFileFSStore( root string ) (*SparseFileFSStore, error) {
 }
 
 
-func (fs *SparseFileFSStore ) Open( path string ) (*SparseFileStore, error) {
-  return OpenSparseFileStore( fs.root + path )
+func (fs *SparseFileFSStore ) Store( source FileSource ) (*SparseFileStore, error) {
+  file,err := OpenSparseFileStore( fs.root + source.Path() )
+
+  //
+
+  return file,err
 }

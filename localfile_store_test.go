@@ -5,11 +5,12 @@ import (
   "io"
 )
 
-func TestFileStore(t *testing.T) {
-  fs := OpenFileStore( LocalAlphabetPath )
+// Test actually uses the source files...
+func TestLocalFileStore(t *testing.T) {
+  fs,_ := OpenLocalFileStore( LocalFilesRoot + AlphabetPath )
 
   if fs == nil {
-    t.Fatal("FileStore doesn't exist")
+    t.Fatal("LocalFileStore doesn't exist")
   }
 
   for _,test := range test_pairs {

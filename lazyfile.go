@@ -9,13 +9,16 @@ type FileStorage interface {
   FileSize() (int64,error)
 }
 
-type FileSourceage interface {
+type FileSource interface {
+  FileSize() (int64,error)
+  Reader() (io.Reader)
+  Path() string
   io.ReaderAt
 }
 
 type LazyFile struct {
   storage FileStorage
-  source FileSourceage
+  source FileSource
 }
 
 func (fs *LazyFile) ReadAt( p []byte, off int64 ) (n int, err error) {

@@ -6,15 +6,17 @@ package lazyfs
 
 type Path string
 
-type Storage interface {
-  Open( path string ) (*FileStorage, error)
+
+type FSSource interface {
+  Open( path string ) (*FileSource, error)
 }
 
-type Source interface {
-  Open( path string ) (*FileSourceage, error)
+type FSStorage interface {
+  Store( source FileSource ) (*FileStorage, error)
 }
+
 
 type LazyFS struct {
-  storage Storage
-  source Source
+  storage FSStorage
+  source FSSource
 }
