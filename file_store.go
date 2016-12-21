@@ -32,16 +32,9 @@ func (fs *FileStore) WriteAt(p []byte, off int64) (n int, err error) {
 	return 0,nil
 }
 
-
-
-
-type HasAt interface {
-	HasAt( p []byte, off int64 ) (n int, err error)
-}
-
 func (fs *FileStore) HasAt( p []byte, off int64 ) (n int, err error) {
 	len := int64(cap( p ))
-	sz := fs.FileSize()
+	sz,_ := fs.FileSize()
 
 	switch {
 		case (off + len) < sz: return int(len), nil
@@ -52,7 +45,7 @@ func (fs *FileStore) HasAt( p []byte, off int64 ) (n int, err error) {
 	return 0, FileStoreError{"Shouldn't get here"}
 }
 
-func (fs *FileStore) FileSize() int64 {
+func (fs *FileStore) FileSize() (int64,error) {
 	stat,_ := fs.file.Stat()
-	return stat.Size()
+	return stat.Size(),nil
 }

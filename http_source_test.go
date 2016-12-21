@@ -3,11 +3,10 @@ package lazyfs
 import "testing"
 
 
+
 func TestHttpSource(t *testing.T) {
-  const TestUrl = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_files/foo.fs"
-
-
-  fs,err := OpenHttpSource(TestUrl)
+  url = TestUrlRoot + AlphabetPath
+  fs,err := OpenHttpSource(url)
 
   if err != nil {
     t.Error("Couldn't create fs:", err)
