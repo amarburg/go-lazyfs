@@ -7,13 +7,12 @@ package lazyfs
 type Path string
 
 type Storage interface {
-  Open( path string ) FileStorage
+  Open( path string ) (*FileStorage, error)
 }
 
 type Source interface {
-  Open( path string ) FileStorage
+  Open( path string ) (*FileSourceage, error)
 }
-
 
 type LazyFS struct {
   storage Storage

@@ -18,6 +18,8 @@ var LocalFilesRoot = ""
 var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/"
 var AlphabetPath = "test_files/a/x/alphabet.fs"
 
+var BadPath = "test_files/a/y/foo.fs"
+
 var LocalAlphabetPath = LocalFilesRoot + AlphabetPath
 var AlphabetUrl = TestUrlRoot + AlphabetPath
 
