@@ -18,6 +18,9 @@ var LocalFilesRoot = ""
 var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/"
 var AlphabetPath = "test_files/a/x/alphabet.fs"
 
+var LocalAlphabetPath = LocalFilesRoot + AlphabetPath
+var AlphabetUrl = TestUrlRoot + AlphabetPath
+
 
 func CheckTestFile( buf []byte, off int64 ) bool {
   // I'm sure there's a beautiful idiomatic Go way to do this

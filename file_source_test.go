@@ -5,7 +5,7 @@ import "io"
 
 
 func TestFileSource(t *testing.T) {
-  filename := LocalFilesRoot + AlphabetPath
+  filename := LocalAlphabetPath
   fs,err := OpenFileSource( filename )
 
   //if fs == nil {

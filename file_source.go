@@ -12,7 +12,7 @@ func OpenFileSource( path string ) (fsrc FileSource, err error ) {
 
 // TODO:  Check for non-existent files
 
-  return FileSource{ path: path, file: f }, nil
+  return FileSource{ path: path, file: f }, err
 }
 
 func (fs *FileSource) ReadAt( p []byte, off int64 ) (n int, err error) {

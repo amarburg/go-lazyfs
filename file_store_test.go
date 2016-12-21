@@ -6,7 +6,7 @@ import (
 )
 
 func TestFileStore(t *testing.T) {
-  fs := OpenFileStore( LocalFilesRoot + AlphabetPath )
+  fs := OpenFileStore( LocalAlphabetPath )
 
   if fs == nil {
     t.Fatal("FileStore doesn't exist")
@@ -49,7 +49,7 @@ func TestFileStore(t *testing.T) {
 
 
 func TestFileStoreInLazyFile( t *testing.T ) {
-  fs := OpenFileStore("test_files/foo.fs")
+  fs := OpenFileStore(LocalAlphabetPath)
   if fs == nil {
     t.Fatal("Couldn't open FileStore")
   }
