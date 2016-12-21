@@ -46,35 +46,3 @@ func TestFileStore(t *testing.T) {
   }
 
 }
-
-
-func TestFileStoreInLazyFile( t *testing.T ) {
-  fs := OpenFileStore(LocalAlphabetPath)
-  if fs == nil {
-    t.Fatal("Couldn't open FileStore")
-  }
-
-  lazyfs := LazyFile { storage: fs }
-
-  for _,test := range test_pairs {
-
-    buf := make([]byte,BufSize)
-    n,err := lazyfs.ReadAt(buf, test.offset)
-
-    if err != nil && err != io.EOF {
-      t.Errorf("Error on read: %s", err.Error() )
-    }
-
-    if n != test.length {
-      t.Error("Expected",test.length,"bytes, got",n)
-    }
-
-    buf = buf[:n]
-
-    if !CheckTestFile(buf,test.offset) {
-      t.Errorf("\"%s\" doesn't match test file at %d", n, 0)
-    }
-
-  }
-
-}
