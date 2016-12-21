@@ -9,8 +9,9 @@ type HttpSource struct {
   client http.Client
 }
 
-func OpenHttpSource( url string ) (hsrc HttpSource, err error ) {
-  return HttpSource{ url: url }, nil
+func OpenHttpSource( url string ) (hsrc *HttpSource, err error ) {
+  h := HttpSource{ url: url }
+  return &h, nil
 }
 
 func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
@@ -24,7 +25,7 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
   response, err := fs.client.Do( request )
 
   //TODO: Check status
-  
+
   defer response.Body.Close()
   n, err = response.Body.Read(p)
 

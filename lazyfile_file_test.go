@@ -3,8 +3,6 @@ package lazyfs
 import "testing"
 import "io"
 
-
-
 // This is actually a null test because FileStore is always complete (never
 //  needs to query the source)
 func TestLazyFileFileSourceAndStorage( t *testing.T ) {

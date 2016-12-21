@@ -13,7 +13,6 @@ var test_pairs = []struct {
   {20, 6},
 }
 
-
 var LocalFilesRoot = ""
 var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/"
 var AlphabetPath = "test_files/a/x/alphabet.fs"
