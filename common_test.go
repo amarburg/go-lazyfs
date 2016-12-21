@@ -19,7 +19,11 @@ var AlphabetPath = "test_files/a/x/alphabet.fs"
 
 var BadPath = "test_files/a/y/foo.fs"
 
+var SparseFileRoot = "/tmp/sparse"
+
+
 var LocalAlphabetPath = LocalFilesRoot + AlphabetPath
+var LocalBadPath      = LocalFilesRoot + BadPath
 var AlphabetUrl = TestUrlRoot + AlphabetPath
 
 
