@@ -1,25 +1,36 @@
 package lazyfs
 
 import "testing"
-import "fmt"
-
 
 
 func TestHttpSource(t *testing.T) {
-  url := "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_files/foo.fs"
+  const TestUrl = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_files/foo.fs"
 
-  fs,err := OpenHttpSource(url)
+
+  fs,err := OpenHttpSource(TestUrl)
 
   if err != nil {
     t.Error("Couldn't create fs:", err)
   }
 
-  buf := make([]byte,10)
-  n,err := fs.ReadAt( buf, 0 )
+  for _,test := range test_pairs {
 
-fmt.Println(buf,n,err)
+    buf := make([]byte, BufSize)
+    n,err := fs.ReadAt( buf, test.offset )
 
-  if !CheckTestFile( buf, 0 ) {
-    t.Error("Data from HTTP source is incorrect(",n,"): ", buf)
+    //TODO:  Error handling
+
+    buf = buf[:n]
+
+    if n != test.length {
+      t.Error("Expected",test.length,"bytes, got",n)
+    }
+
+    if !CheckTestFile( buf, test.offset ) {
+      t.Error("Reading",cap(buf),"bytes from HTTP source at offset",
+              test.offset,"is incorrect(",n," bytes returned): ",
+              err, buf )
+    }
+
   }
 }

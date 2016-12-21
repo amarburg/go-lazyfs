@@ -1,8 +1,7 @@
 package lazyfs
 
-import (
-	"os"
-)
+import "os"
+
 
 type FileStoreError struct {
 	Err string
@@ -41,13 +40,13 @@ type HasAt interface {
 }
 
 func (fs *FileStore) HasAt( p []byte, off int64 ) (n int, err error) {
-	len := cap( p )
+	len := int64(cap( p ))
 	sz := fs.FileSize()
 
 	switch {
-		case (off + int64(len)) < sz: return len, nil
+		case (off + len) < sz: return int(len), nil
 		case off > sz: return 0, FileStoreError{"Offset beyond end of file"}
-		case off+int64(len) > sz: return int(off+int64(len) - sz), nil
+		case (off + len) > sz: return int(sz - off), nil
 	}
 
 	return 0, FileStoreError{"Shouldn't get here"}

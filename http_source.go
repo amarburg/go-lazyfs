@@ -23,7 +23,8 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
 
   response, err := fs.client.Do( request )
 
-  // Check status
+  //TODO: Check status
+  
   defer response.Body.Close()
   n, err = response.Body.Read(p)
 
