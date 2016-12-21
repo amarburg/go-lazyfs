@@ -25,7 +25,7 @@ func TestLocalFSStore( t *testing.T ) {
     t.Fatal("Couldn't create FileStore from LocalFSStore", err.Error() )
   }
 
-  dest,_ := os.Stat( LocalFilesRoot + AlphabetPath )
+  dest,_ := os.Stat( LocalStoreRoot + AlphabetPath )
 
   if dest.Size() != AlphabetSize {
     t.Errorf("Storage file isn't the expected length %d != %d", dest.Size(), AlphabetSize )

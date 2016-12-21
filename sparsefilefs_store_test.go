@@ -2,13 +2,18 @@ package lazyfs
 
 import "testing"
 import "os"
+import "io"
 
+func ClearSparseStoreRoot() {
+  os.RemoveAll( SparseStoreRoot )
+}
 
 func TestSparseFileFSStore( t *testing.T ) {
 
-  os.Mkdir( SparseFileRoot, 0755 )
+  ClearSparseStoreRoot()
+  os.MkdirAll( SparseStoreRoot, 0755 )
 
-  fs, err := OpenSparseFileFSStore( SparseFileRoot )
+  fs, err := OpenSparseFileFSStore( SparseStoreRoot )
 
   if fs == nil || err != nil {
     t.Fatal("Couldn't create SparseFileFSStore", err.Error() )
@@ -25,6 +30,39 @@ func TestSparseFileFSStore( t *testing.T ) {
     }
   }
 
+
+    dest,err := os.Stat( SparseStoreRoot + AlphabetPath )
+
+    if err != nil {
+      t.Fatal("Couldn't find sparse file", SparseStoreRoot + AlphabetPath )
+    }
+
+    if dest.Size() != AlphabetSize {
+      t.Errorf("Storage file isn't the expected length %d != %d", dest.Size(), AlphabetSize )
+    }
+
+
+}
+
+
+func TestZeroReader( t *testing.T ) {
+  z := ZeroReader{ size: 36 }
+  p := make( []byte, 16)
+
+  l,err := z.Read( p )
+  if err != nil || l != 16 {
+    t.Error("Didn't work (first)",l,err)
+  }
+
+  l,err = z.Read( p )
+  if err != nil || l != 16 {
+    t.Error("Didn't work (second)",l,err)
+  }
+
+  l,err = z.Read( p )
+  if err != io.EOF || l != 4 {
+    t.Error("Didn't work (third)",l,err)
+  }
 }
 
 
