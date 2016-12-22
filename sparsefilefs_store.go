@@ -31,9 +31,15 @@ func OpenSparseFileFSStore( root string ) (*SparseFileFSStore, error) {
 func (fs *SparseFileFSStore ) Store( source FileSource ) (FileStorage, error) {
   sparsefile := fs.root + source.Path()
 
-  _,err := os.Stat( sparsefile )
-  if err != nil {
-    fmt.Println("Creating sparsefile", sparsefile)
+  fmt.Println("Checking sparsefile ",sparsefile)
+
+  // Fill file with with null
+  sz,_ := source.FileSize()
+
+  fileinfo,err := os.Stat( sparsefile )
+  if err != nil || fileinfo.Size() != sz {
+
+    fmt.Println("Creating sparsefile size", sparsefile, sz)
     os.MkdirAll( filepath.Dir(sparsefile), 0755 )
     dest,err := os.Create( sparsefile )
 
@@ -41,8 +47,6 @@ func (fs *SparseFileFSStore ) Store( source FileSource ) (FileStorage, error) {
       panic(fmt.Sprintf("Couldn't create sparsefile %s", sparsefile) )
     }
 
-    // Fill is with null
-    sz,_ := source.FileSize()
     zero := &ZeroReader{ size: sz }
     io.Copy( dest, zero )
   }

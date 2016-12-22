@@ -29,5 +29,6 @@ func (fs *LocalFSSource) Open( path string ) (*LocalFileSource, error) {
 
       file.SetBackingStore( st )
   }
+
   return file, err
 }

@@ -22,6 +22,8 @@ var AlphabetPath = "x/alphabet.fs"
 var LocalStoreRoot = "test_files/localfs/"
 var SparseStoreRoot = "test_files/localsparse/"
 
+var SparseHttpStoreRoot = "test_files/httpsparse/"
+
 var BadPath = "test_files/a/y/foo.fs"
 
 

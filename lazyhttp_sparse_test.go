@@ -3,19 +3,15 @@ package lazyfs
 import "testing"
 //import "fmt"
 import "io"
-import "os"
 
-func TestLazyFileSparseStorage( t *testing.T ) {
+func TestHttpSourceSparseStorage( t *testing.T ) {
 
-  os.RemoveAll( SparseStoreRoot )
-  os.MkdirAll( SparseStoreRoot, 0755 )
-
-  source,err := OpenLocalFSSource(LocalFilesRoot)
+  source,err := OpenHttpFSSource(TestUrlRoot)
   if err != nil {
-    t.Fatal("Couldn't open FileSource")
+    t.Fatal("Couldn't open HttpFSSource")
   }
 
-  store,err := OpenSparseFileFSStore( SparseStoreRoot)
+  store,err := OpenSparseFileFSStore( SparseHttpStoreRoot )
   if store == nil {
     t.Fatal("Couldn't open SparesFileFSStore")
   }
