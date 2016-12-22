@@ -12,7 +12,7 @@ type FSSource interface {
 }
 
 type FSStorage interface {
-  Store( source FileSource ) (*FileStorage, error)
+  Store( source FileSource ) (FileStorage, error)
 }
 
 

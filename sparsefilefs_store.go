@@ -28,7 +28,7 @@ func OpenSparseFileFSStore( root string ) (*SparseFileFSStore, error) {
 }
 
 
-func (fs *SparseFileFSStore ) Store( source FileSource ) (*SparseFileStore, error) {
+func (fs *SparseFileFSStore ) Store( source FileSource ) (FileStorage, error) {
   sparsefile := fs.root + source.Path()
 
   _,err := os.Stat( sparsefile )
