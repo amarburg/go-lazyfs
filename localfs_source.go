@@ -10,6 +10,6 @@ func OpenLocalFSSource( root string ) (*LocalFSSource, error) {
   return &fs, nil
 }
 
-func (fs *LocalFSSource ) Open( path string ) (*FileSource, error) {
+func (fs *LocalFSSource ) Open( path string ) (*LocalFileSource, error) {
   return OpenLocalFileSource( fs.root, path )
 }

@@ -1,7 +1,7 @@
 package lazyfs
 
 import "testing"
-//import "io"
+import "fmt"
 
 func TestLazyFileSparseStorage( t *testing.T ) {
 
@@ -15,7 +15,13 @@ func TestLazyFileSparseStorage( t *testing.T ) {
     t.Fatal("Couldn't open FileSource")
   }
 
-  lastfs := LazyFS { storage: store, source: source }
+  lastfs := struct {
+    storage  *SparseFileFSStore
+    source   *LocalFSSource
+  } { storage: store, source: source }
+
+
+  fmt.Println( lastfs )
 
 }
 
