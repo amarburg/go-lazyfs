@@ -25,10 +25,10 @@ func (fs *HttpSource) SetBackingStore( store FileStorage ) {
 func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
   if fs.store != nil {
     if _,err := fs.store.HasAt(p,off); err == nil  {
-      fmt.Println("HttpSource: Retrieving from store")
+      //fmt.Println("HttpSource: Retrieving from store")
       return fs.store.ReadAt( p, off )
     } else {
-      fmt.Println( "HttpSource: Need to update store, querying HTTP")
+      //fmt.Println( "HttpSource: Need to update store, querying HTTP")
       n,_ := fs.ReadHttpAt(p,off)
       fs.store.WriteAt(p[:n], off)
 

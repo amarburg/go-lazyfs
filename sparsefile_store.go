@@ -1,7 +1,7 @@
 package lazyfs
 
 import "os"
-import "fmt"
+//import "fmt"
 
 //=====================================
 type SparseFileStoreError struct {
@@ -59,7 +59,7 @@ func (fs *SparseFileStore) HasAt( p []byte, off int64 ) (n int, err error) {
 	}
 
 	for i:= 0; i < n; i++ {
-		fmt.Println(off+int64(i),"=",fs.has[off+int64(i)])
+		//fmt.Println(off+int64(i),"=",fs.has[off+int64(i)])
 		if fs.has[off+int64(i)] == false {
 			return 0, SparseFileStoreError{"HasAt: Don't have all of the requested bytes"}
 		}

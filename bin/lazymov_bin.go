@@ -1,8 +1,9 @@
 package main
 
 import "fmt"
-//import "io"
+import "io"
 import "github.com/amarburg/lazyfs"
+import "github.com/amarburg/go-quicktime"
 
 var TestUrlRoot = "http://localhost:8080/files/"
 var TestMovPath = "CamHD_Vent_Short.mov"
@@ -28,10 +29,35 @@ func main() {
     panic("Couldn't open AlphabetPath")
   }
 
-  buf := make( []byte, 10 )
-  n,err := file.ReadAt( buf, 0 )
+    var offset int64 = 0
 
-  fmt.Printf("Read %d characters: %s\n", n, buf)
+  for {
+
+    header_buf := make([]byte, quicktime.AtomHeaderLength )
+    n,err := file.ReadAt(header_buf, offset)
+
+    if err == io.EOF {
+      fmt.Println("End of file")
+      break
+    }
+
+    if n != quicktime.AtomHeaderLength {
+      panic(fmt.Sprintf("Tried to read an Atom header and got %d instead",n))
+    }
+
+    header,err := quicktime.ParseAtomHeader( header_buf )
+
+    if err != nil {
+      panic("Error parsing header")
+    }
+
+    fmt.Println(header.Size, header.DataSize, header.Type )
+
+    offset += int64(header.Size)
+
+  }
+
+
 
 
 }
