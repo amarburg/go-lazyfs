@@ -23,6 +23,9 @@ func OpenSparseFileStore( name string ) (*SparseFileStore,error) {
 	f,err := os.OpenFile(name, os.O_RDWR, 0644 )
 	fs := SparseFileStore{ file: f }
 
+	sz,err := fs.FileSize()
+	fs.has = make( map[int64]bool, sz )
+
 	return &fs, err
 }
 
@@ -31,7 +34,7 @@ func (fs *SparseFileStore) ReadAt( p []byte, off int64) (n int, err error) {
 	// Check validity
 	n,err =  fs.HasAt( p, off )
 	if err != nil {
-		return 0, SparseFileStoreError{"Don't have all of the requested bytes"}
+		return 0, SparseFileStoreError{"ReadAt: Don't have all of the requested bytes"}
 	}
 
 	return fs.file.ReadAt( p, off )
@@ -57,7 +60,7 @@ func (fs *SparseFileStore) HasAt( p []byte, off int64 ) (n int, err error) {
 
 	for i:= 0; i < n; i++ {
 		if fs.has[off+int64(i)] == false {
-			return 0, SparseFileStoreError{"Don't have all of the bytes requested"}
+			return 0, SparseFileStoreError{"HasAt: Don't have all of the requested bytes"}
 		}
 	}
 

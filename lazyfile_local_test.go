@@ -4,16 +4,16 @@ import "testing"
 //import "fmt"
 import "io"
 
-func TestLazyFileSparseStorage( t *testing.T ) {
+func TestLazyFileLocalStorage( t *testing.T ) {
 
   source,err := OpenLocalFSSource(LocalFilesRoot)
   if err != nil {
     t.Fatal("Couldn't open FileSource")
   }
 
-  store,err := OpenSparseFileFSStore( SparseStoreRoot)
+  store,err := OpenLocalFSStore( LocalStoreRoot )
   if store == nil {
-    t.Fatal("Couldn't open SparesFileFSStore")
+    t.Fatal("Couldn't open LocalFSStore")
   }
 
   source.SetBackingStore( store )

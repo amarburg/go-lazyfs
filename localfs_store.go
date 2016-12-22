@@ -13,7 +13,7 @@ func OpenLocalFSStore( root string ) (*LocalFSStore, error) {
   return &fs, nil
 }
 
-func (fs *LocalFSStore) Store( source FileSource ) (*LocalFileStore, error) {
+func (fs *LocalFSStore) Store( source FileSource ) (FileStorage, error) {
   file := fs.root + source.Path()
 
   _,err := os.Stat( file )
@@ -27,5 +27,6 @@ func (fs *LocalFSStore) Store( source FileSource ) (*LocalFileStore, error) {
 
   }
 
-  return OpenLocalFileStore( file )
+  store,err := OpenLocalFileStore( file )
+  return store, err
 }

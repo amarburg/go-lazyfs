@@ -8,7 +8,7 @@ type Path string
 
 
 type FSSource interface {
-  Open( path string ) (*FileSource, error)
+  Open( path string ) (FileSource, error)
 }
 
 type FSStorage interface {
@@ -16,7 +16,12 @@ type FSStorage interface {
 }
 
 
-type LazyFS struct {
-  storage FSStorage
-  source FSSource
+// type LazyFS struct {
+//   storage FSStorage
+//   source FSSource
+// }
+
+
+func Open( storage FSStorage, source FSSource, path string ) {
+
 }

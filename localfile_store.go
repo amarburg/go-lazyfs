@@ -21,10 +21,8 @@ func OpenLocalFileStore( name string ) (*LocalFileStore, error) {
 	return &fs, err
 }
 
-
-
 func (fs *LocalFileStore) ReadAt( p []byte, off int64) (n int, err error) {
-	return fs.file.ReadAt( p, off )
+		return fs.file.ReadAt( p, off )
 }
 
 func (fs *LocalFileStore) WriteAt(p []byte, off int64) (n int, err error) {
