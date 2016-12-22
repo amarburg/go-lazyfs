@@ -29,16 +29,26 @@ func main() {
     panic("Couldn't open AlphabetPath")
   }
 
-    var offset int64 = 0
+  var offset int64 = 0
+  var indent = 0
 
-  for {
+  sz,_ := file.FileSize()
+  ParseAtom( file, offset, sz, indent )
+
+
+
+}
+
+
+func ParseAtom( file lazyfs.FileSource, offset int64, length int64, indent int ) error {
+  for offset < length {
 
     header_buf := make([]byte, quicktime.AtomHeaderLength )
     n,err := file.ReadAt(header_buf, offset)
 
     if err == io.EOF {
       fmt.Println("End of file")
-      break
+      return err
     }
 
     if n != quicktime.AtomHeaderLength {
@@ -51,13 +61,18 @@ func main() {
       panic("Error parsing header")
     }
 
-    fmt.Println(header.Size, header.DataSize, header.Type )
+    for i := 0; i < indent; i++ { fmt.Printf("  ") }
+    fmt.Printf("%v  %v\n",header.Type, header.Size )
 
-    offset += int64(header.Size)
+    atom_end := offset + int64(header.Size)
 
+    if( header.IsContainer() ) {
+      err = ParseAtom( file, offset+quicktime.AtomHeaderLength, atom_end, indent+1 )
+      if err != nil { return err }
+    }
+
+    offset = atom_end
   }
 
-
-
-
+  return nil
 }
