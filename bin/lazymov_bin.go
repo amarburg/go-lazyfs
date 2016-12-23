@@ -37,95 +37,83 @@ func main() {
 
   tree := quicktime.BuildTree( file, sz )
 
+  quicktime.DumpTree( file, tree )
 
-  DumpTree( file, tree )
+  moov := tree.FindAtom("moov")
+  if moov == nil { panic("Can't find MOOV atom")}
 
-}
+  tracks := moov.FindAtoms("trak")
+  if tracks == nil || len(tracks) == 0 { panic("Couldn't find any TRAKs in the MOOV")}
+  fmt.Println("Found",len(tracks),"TRAK atoms")
 
+  var track *quicktime.Atom = nil
+  for i,t := range tracks {
+    fmt.Println(t, t.Type)
+    mdia := t.FindAtom("mdia")
+    if mdia == nil {
+      fmt.Println("No mdia track",i)
+      continue
+    }
 
-// func ParseAtom( file lazyfs.FileSource, offset int64, length int64, indent int ) error {
-//   for offset < length {
-//
-//     // header_buf := make([]byte, quicktime.AtomHeaderLength )
-//     // n,err := file.ReadAt(header_buf, offset)
-//     //
-//     // if err == io.EOF {
-//     //   fmt.Println("End of file")
-//     //   return err
-//     // }
-//     //
-//     // if n != quicktime.AtomHeaderLength {
-//     //   panic(fmt.Sprintf("Tried to read an Atom header and got %d instead",n))
-//     // }
-//     //
-//     // header,err := quicktime.ParseAtomHeader( header_buf )
-//
-//     header,err := quicktime.ParseAtomHeaderAt( file, offset )
-//
-//     if err != nil {
-//       panic("Error parsing header")
-//     }
-//
-//     PrintAtom( file, header, indent )
-//
-//     atom_end := offset + int64(header.Size)
-//
-//     if( header.IsContainer() ) {
-//       err = ParseAtom( file, offset+quicktime.AtomHeaderLength, atom_end, indent+1 )
-//       if err != nil { return err }
-//     }
-//
-//     offset = atom_end
-//   }
-//
-//   return nil
-// }
+    minf := mdia.FindAtom("minf")
+    if minf == nil {
+      fmt.Println("No minf track",i)
+      continue
+    }
 
-
-func DumpTree( file lazyfs.FileSource, tree []quicktime.AtomHeader ) {
-  indent := 0
-  for _,atom := range tree  {
-    PrintAtom( file, atom, indent )
+    if minf.FindAtom("vmhd") != nil {
+      fmt.Println("Found vmhd")
+      track = t
+      break
+    }
   }
+
+  if track == nil { panic("Couldn't identify the Video track")}
+
+  stbl_atom := track.FindAtom("mdia").FindAtom("minf").FindAtom("stbl")
+  stbl,_ := quicktime.ParseSTBL( stbl_atom )
+
+  fmt.Println("Found track with video information")
+
+  // Find movie length
+  num_frames := stbl.NumFrames()
+
+  fmt.Println("Movie has",num_frames,"frames")
+
+  fmt.Println("Chunk table:")
+  for idx,offset := range stbl.Stco.ChunkOffsets {
+    fmt.Printf("   %d %20d\n",idx+1, offset )
+  }
+
+  //fmt.Println(stbl)
+
+  for sample := 1; sample <= num_frames; sample++ {
+      chunk,chunk_start,relasample := stbl.Stsc.SampleChunk( sample )
+      fmt.Println("Sample", sample,"is in chunk",chunk,"the",relasample,"'th sample; the chunk starts at sample",chunk_start)
+
+      offset,_ := stbl.SampleOffset( sample )
+      fmt.Println("Sample at byte",offset,"in file")
+
+
+  }
+
+
+  // Try extracting a frame
+  frame := 1
+  LoadFrame( frame, stbl, file )
 }
 
-func PrintAtom( file lazyfs.FileSource, header quicktime.AtomHeader, indent int ){
 
-    for i := 0; i < indent; i++ { fmt.Printf("..") }
-    fmt.Printf("%v  %v",header.Type, header.Size )
+func LoadFrame( frame int, stbl quicktime.STBLAtom, file io.ReaderAt ) {
 
-    switch header.Type {
-    case "ftyp":
-      atom,_ :=  quicktime.ReadAtomAt( file, header )
-      ftyp,_ := quicktime.ParseFTYP( atom )
+  frame_offset,frame_size,_ := stbl.SampleOffsetSize( frame )
 
-      fmt.Printf(" (%08x %08x) ", ftyp.MajorBrand, ftyp.MinorVersion )
-    case "stco":
-      atom,_ :=  quicktime.ReadAtomAt( file, header )
-      stco,_ := quicktime.ParseSTCO( atom )
+  fmt.Printf("Extracting frame %d at offset %d size %d\n", frame, frame_offset, frame_size)
 
-      fmt.Printf(" (%d entries) ", len(stco.ChunkOffsets) )
-    case "stsz":
-      atom,_ :=  quicktime.ReadAtomAt( file, header )
-      stsz,_ := quicktime.ParseSTSZ( atom )
+  buf := make([]byte, frame_size)
+  n,err = file.ReadAt( buf, frame_offset )
 
-      fmt.Printf(" (%d entries, default size %d)", len(stsz.SampleSizes), stsz.SampleSize )
-    case "stsc":
-      atom,_ :=  quicktime.ReadAtomAt( file, header )
-      stsz,_ := quicktime.ParseSTSC( atom )
+  if n != frame_size { panic(fmt.Sprintf("Tried to read %d bytes but got %d instead",frame_size,n))}
 
-      fmt.Printf(" (%d entries): ", len(stsz.Entries) )
-      for _,e := range stsz.Entries  {
-        fmt.Printf(" (%d,%d,%d) ", e.FirstChunk, e.SamplesPerChunk, e.SampleId )
-      }
-    }
-
-
-    fmt.Printf("\n")
-
-
-    for _,child := range header.Children  {
-      PrintAtom( file, child, indent+1 )
-    }
-
+  
 }
