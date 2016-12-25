@@ -80,7 +80,7 @@ func (fs *HttpSource) FileSize() (int64,error) {
 
   content_range := response.Header["Content-Range"]
   if content_range == nil {
-    panic( "Response header didn't have Content-Range")
+    panic( fmt.Sprintf("Response header didn't have Content-Range: %v", response.Header ))
   }
 
   // Extract the Header
