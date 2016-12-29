@@ -23,5 +23,9 @@ In the long-run I think one or more database-backed Stores will be the preferred
 
 My first Golang library, so excuse any non-idiomatic uses or other tomfoolery.
 
+## TODO
+
+- [ ] Write [GoDoc](https://blog.golang.org/godoc-documenting-go-code) and get it published on [GoDoc.org](https://godoc.org/)
+
 ## License
 This library is under the [MIT License](http://opensource.org/licenses/MIT)
