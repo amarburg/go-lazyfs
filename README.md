@@ -1,5 +1,10 @@
 # LazyFS
 
+
+[![GoDoc](https://godoc.org/github.com/amarburg/go-lazyfs?status.svg)](https://godoc.org/github.com/amarburg/go-lazyfs)
+[![Travis CI](https://travis-ci.org/amarburg/go-lazyfs.svg?branch=master)](https://travis-ci.org/amarburg/go-lazyfs)
+
+
 Provides transparent byte-level caching of files pulled from a remote source (currently either another filesystem or an HTTP server that supports `Content-Range`).   
 
 Tried to make a modular system where different Sources (e.g., HTTP, local file) and Stores (e.g., a local flat file, a database) can be paired up.   The resulting Source implements the Go [`ReaderAt`](https://golang.org/pkg/io/#ReaderAt) interface.
