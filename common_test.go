@@ -1,5 +1,6 @@
 package lazyfs
 
+import "net/url"
 import "reflect"
 
 var BufSize = 10
@@ -18,6 +19,7 @@ var AlphabetSize int64 = 26
 var LocalFilesRoot = "test_files/a/"
 var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_files/a/"
 var AlphabetPath = "x/alphabet.fs"
+var AlphabetUrl,_ = url.Parse( TestUrlRoot + AlphabetPath )
 
 var LocalStoreRoot = "test_files/localfs/"
 var SparseStoreRoot = "test_files/localsparse/"

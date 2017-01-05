@@ -8,53 +8,33 @@ import "strconv"
 import "net/url"
 
 type HttpSource struct {
-  url string
-  path string
-  client http.Client
-  store FileStorage
+  url url.URL
+  // url string
+  // path string
+  //client http.Client
+  //store FileStorage
 }
 
-func OpenHttpSourceUrl( url url.URL ) (hsrc *HttpSource, err error ) {
-  h := HttpSource{ url: url.String(), path: url.Path }
+func OpenHttpSource( url url.URL ) (hsrc *HttpSource, err error ) {
+  h := HttpSource{ url: url }
   return &h, nil
 }
 
-func OpenHttpSource( url_root string, path string ) (hsrc *HttpSource, err error ) {
-  h := HttpSource{ url: url_root + path, path: path }
-  return &h, nil
-}
-
-func (fs *HttpSource) SetBackingStore( store FileStorage ) {
-	fs.store = store
-}
+// func (fs *HttpSource) SetBackingStore( store FileStorage ) {
+// 	fs.store = store
+// }
 
 func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
-  if fs.store != nil {
-    if _,err := fs.store.HasAt(p,off); err == nil  {
-      //fmt.Println("HttpSource: Retrieving",len(p),"from store")
-      return fs.store.ReadAt( p, off )
-    } else {
-      //fmt.Println( "HttpSource: Need to update store, querying HTTP")
-      n,_ := fs.ReadHttpAt(p,off)
-      fs.store.WriteAt(p[:n], off)
 
-      return n, nil
-    }
-  } else {
-    return fs.ReadHttpAt(p,off)
-  }
-}
-
-func (fs *HttpSource) ReadHttpAt( p []byte, off int64 ) (n int, err error) {
-
-  request, err := http.NewRequest("GET", fs.url, nil)
+  request, err := http.NewRequest("GET", fs.url.String(), nil)
 
   range_str := fmt.Sprintf("bytes=%d-%d", off, off+int64(cap(p)))
   request.Header = map[string][]string{
                     "Range": { range_str },
                   }
 
-  response, err := fs.client.Do( request )
+  client := http.Client{}
+  response, err := client.Do( request )
 
 //fmt.Println(response)
 //fmt.Println(p)
@@ -75,11 +55,13 @@ func (fs *HttpSource) ReadHttpAt( p []byte, off int64 ) (n int, err error) {
 
 func (fs *HttpSource) FileSize() (int64,error) {
   // Don't know if this always works
-  request,_ := http.NewRequest("GET", fs.url, nil)
+  request,_ := http.NewRequest("GET", fs.url.String(), nil)
   request.Header = map[string][]string{
                     "Range": { "bytes=0-0" },
                   }
-  response, _ := fs.client.Do( request )
+
+  client := http.Client{}
+  response, _ := client.Do( request )
   defer response.Body.Close()
 
   //TODO: Check status
@@ -105,13 +87,14 @@ func (fs *HttpSource) FileSize() (int64,error) {
 }
 
 func (fs *HttpSource) Reader() io.Reader {
-  request, _ := http.NewRequest("GET", fs.url, nil)
-  response, _ := fs.client.Do( request )
+  request, _ := http.NewRequest("GET", fs.url.String(), nil)
+  client := http.Client{}
+  response, _ := client.Do( request )
 
   return response.Body
 }
 
 
 func (fs *HttpSource) Path() string {
-  return fs.path
+  return fs.url.Path
 }

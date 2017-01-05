@@ -5,7 +5,7 @@ import "testing"
 
 
 func TestHttpSource(t *testing.T) {
-  fs,err := OpenHttpSource( TestUrlRoot, AlphabetPath )
+  fs,err := OpenHttpSource( *AlphabetUrl )
 
   if err != nil {
     t.Error("Couldn't create fs:", err)

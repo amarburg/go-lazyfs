@@ -2,6 +2,7 @@ package lazyfs
 
 import "fmt"
 import "net/http"
+import "net/url"
 import "errors"
 import "golang.org/x/net/html"
 
@@ -20,17 +21,18 @@ func (fs *HttpFSSource) SetBackingStore( store FSStorage ) {
 }
 
 func (fs *HttpFSSource ) Open( path string ) (*HttpSource, error) {
-  src,err := OpenHttpSource( fs.url_root, path )
+  url,_ := url.Parse(fs.url_root + path)
+  src,err := OpenHttpSource( *url )
 
-  if fs.store != nil {
-      st,err := fs.store.Store( src )
-
-      if err != nil {
-        panic(fmt.Sprintf("Couldn't create store for file %s",path))
-      }
-
-      src.SetBackingStore( st )
-  }
+  // if fs.store != nil {
+  //     st,err := fs.store.Store( src )
+  //
+  //     if err != nil {
+  //       panic(fmt.Sprintf("Couldn't create store for file %s",path))
+  //     }
+  //
+  //     //src.SetBackingStore( st )
+  // }
 
   return src,err
 }
