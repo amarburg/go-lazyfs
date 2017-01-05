@@ -21,8 +21,8 @@ var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test
 var AlphabetPath = "x/alphabet.fs"
 var AlphabetUrl,_ = url.Parse( TestUrlRoot + AlphabetPath )
 
-var LocalStoreRoot = "test_files/localfs/"
-var SparseStoreRoot = "test_files/localsparse/"
+var LocalStoreRoot = "test_files/localfilestore/"
+var SparseStoreRoot = "test_files/localsparsestore/"
 
 var SparseHttpStoreRoot = "test_files/httpsparse/"
 

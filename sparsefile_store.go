@@ -1,7 +1,9 @@
 package lazyfs
 
 import "os"
-//import "fmt"
+import "fmt"
+import "path/filepath"
+import "io"
 
 //=====================================
 type SparseFileStoreError struct {
@@ -19,15 +21,66 @@ type SparseFileStore struct {
 	has map[int64]bool
 }
 
-func OpenSparseFileStore( name string ) (*SparseFileStore,error) {
-	f,err := os.OpenFile(name, os.O_RDWR, 0644 )
-	fs := SparseFileStore{ file: f }
+func OpenSparseFileStore( source FileSource, root string ) (*SparseFileStore,error) {
+	sz,_ := source.FileSize()
+	f,err := InitializeSparsefile( root + source.Path(), sz )
+	if err != nil { return nil,err }
 
-	sz,err := fs.FileSize()
-	fs.has = make( map[int64]bool, sz )
+	fs := SparseFileStore{ file: f, has: make( map[int64]bool, sz ) }
 
 	return &fs, err
 }
+
+func InitializeSparsefile( sparsefile string, sz int64 ) (*os.File, error) {
+
+	// Fill file with with null
+
+	fileinfo,err := os.Stat( sparsefile )
+	if err != nil || fileinfo.Size() != sz {
+
+		fmt.Println("Creating sparsefile size", sparsefile, sz)
+		os.MkdirAll( filepath.Dir(sparsefile), 0755 )
+		dest,err := os.Create( sparsefile )
+
+		if err != nil {
+			panic(fmt.Sprintf("Couldn't create sparsefile %s", sparsefile) )
+		}
+
+		zero := &ZeroReader{ size: sz }
+		io.Copy( dest, zero )
+	}
+
+	file,err := os.OpenFile( sparsefile, os.O_RDWR, 0644 )
+
+	return file,err
+}
+
+
+
+type ZeroReader struct {
+size int64
+}
+
+func (w *ZeroReader) Read( p []byte) (n int, err error) {
+if int64(cap(p)) > w.size {
+	n = int(w.size)
+} else {
+	n = cap(p)
+}
+
+for i := 0; i < n; i++ { p[i] = 0 }
+
+w.size -= int64(n)
+
+if w.size == 0 {
+	err = io.EOF
+	} else {
+		err = nil
+	}
+
+	return n,err
+}
+
 
 //=====================================
 func (fs *SparseFileStore) ReadAt( p []byte, off int64) (n int, err error) {

@@ -4,6 +4,8 @@ import "os"
 import "io"
 
 import "fmt"
+import "path/filepath"
+
 
 type LocalFileStoreError struct {
 	Err string
@@ -29,7 +31,11 @@ func OpenLocalFileStore( source FileSource, root string ) (*LocalFileStore, erro
 func (fs *LocalFileStore) Load( )  error {
 	if fs.file == nil {
 
-	f,err := os.Open( fs.root + fs.source.Path())
+		path := fs.root + fs.source.Path()
+
+		os.MkdirAll( filepath.Dir(path), 0755 )
+
+	f,err := os.Create( path )
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -38,7 +44,9 @@ func (fs *LocalFileStore) Load( )  error {
 	reader := fs.source.Reader()
 	io.Copy( f, reader )
 
-fs.file = f
+	f.Close();
+
+fs.file,_ = os.Open(path)
 
 	}
 	return  nil

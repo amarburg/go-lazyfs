@@ -3,7 +3,8 @@ package lazyfs
 import "testing"
 
 func TestSparseFileStore(t *testing.T) {
-  fs,err := OpenSparseFileStore( LocalFilesRoot + AlphabetPath )
+  src,_ := OpenLocalFileSource( LocalFilesRoot, AlphabetPath )
+  fs,err := OpenSparseFileStore( src, SparseStoreRoot )
 
   if fs == nil {
     t.Fatal("SparseFileStore doesn't exist")
