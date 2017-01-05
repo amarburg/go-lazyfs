@@ -18,6 +18,7 @@ func (e SparseFileStoreError) Error() string {
 //=====================================
 type SparseFileStore struct {
 	file *os.File
+	source FileSource
 	has map[int64]bool
 }
 
@@ -26,7 +27,7 @@ func OpenSparseFileStore( source FileSource, root string ) (*SparseFileStore,err
 	f,err := InitializeSparsefile( root + source.Path(), sz )
 	if err != nil { return nil,err }
 
-	fs := SparseFileStore{ file: f, has: make( map[int64]bool, sz ) }
+	fs := SparseFileStore{ file: f, source: source, has: make( map[int64]bool, sz ) }
 
 	return &fs, err
 }
@@ -85,12 +86,24 @@ if w.size == 0 {
 //=====================================
 func (fs *SparseFileStore) ReadAt( p []byte, off int64) (n int, err error) {
 	// Check validity
-	n,err =  fs.HasAt( p, off )
-	if err != nil {
-		return 0, SparseFileStoreError{"ReadAt: Don't have all of the requested bytes"}
-	}
+  if _,err := fs.HasAt(p,off); err == nil  {
+    fmt.Println("Retrieving from store")
+    return fs.ReadAt( p, off )
+  }
 
-	return fs.file.ReadAt( p, off )
+    fmt.Println( "Need to update store")
+    n,_ = fs.source.ReadAt(p,off)
+    fs.WriteAt(p[:n], off)
+
+    return n, nil
+  // }
+	//
+	// n,err =  fs.HasAt( p, off )
+	// if err != nil {
+	// 	return 0, SparseFileStoreError{"ReadAt: Don't have all of the requested bytes"}
+	// }
+	//
+	// return fs.file.ReadAt( p, off )
 }
 
 func (fs *SparseFileStore) WriteAt(p []byte, off int64) (n int, err error) {
