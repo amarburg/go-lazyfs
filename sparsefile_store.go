@@ -87,15 +87,16 @@ if w.size == 0 {
 func (fs *SparseFileStore) ReadAt( p []byte, off int64) (n int, err error) {
 	// Check validity
   if _,err := fs.HasAt(p,off); err == nil  {
-    fmt.Println("Retrieving from store")
-    return fs.ReadAt( p, off )
+    //fmt.Println("Retrieving from store")
+    return fs.file.ReadAt( p, off )
   }
 
-    fmt.Println( "Need to update store")
-    n,_ = fs.source.ReadAt(p,off)
-    fs.WriteAt(p[:n], off)
+  //fmt.Println( "Need to update store")
+  n,_ = fs.source.ReadAt(p,off)
+  fs.WriteAt(p[:n], off)
 
-    return n, nil
+  return n, nil
+
   // }
 	//
 	// n,err =  fs.HasAt( p, off )

@@ -82,7 +82,7 @@ func (fs *HttpSource) FileSize() (int64,error) {
   if err != nil {
     panic( fmt.Sprintf("Couldn't extract content length from \"%s\": %s", splits[1], err.Error()))
   }
-  fmt.Println("Got content length", l)
+  //fmt.Println("Got content length", l)
   return int64(l),nil
 }
 
@@ -96,5 +96,5 @@ func (fs *HttpSource) Reader() io.Reader {
 
 
 func (fs *HttpSource) Path() string {
-  return fs.url.Path
+  return fs.url.Host + fs.url.Path
 }
