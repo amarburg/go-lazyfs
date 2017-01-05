@@ -22,6 +22,6 @@ type FSStorage interface {
 // }
 
 
-func Open( storage FSStorage, source FSSource, path string ) {
-
-}
+// func Open( storage FSStorage, source FSSource, path string ) {
+//
+// }

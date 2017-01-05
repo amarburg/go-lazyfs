@@ -27,6 +27,8 @@ var SparseHttpStoreRoot = "test_files/httpsparse/"
 var BadPath = "test_files/a/y/foo.fs"
 
 
+var OOIRawDataRootURL = "https://rawdata.oceanobservatories.org/files/"
+
 
 // var LocalAlphabetPath = LocalFilesRoot + AlphabetPath
 // var LocalBadPath      = LocalFilesRoot + BadPath

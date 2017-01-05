@@ -5,12 +5,18 @@ import "fmt"
 import "io"
 import "strings"
 import "strconv"
+import "net/url"
 
 type HttpSource struct {
   url string
   path string
   client http.Client
   store FileStorage
+}
+
+func OpenHttpSourceUrl( url url.URL ) (hsrc *HttpSource, err error ) {
+  h := HttpSource{ url: url.String(), path: url.Path }
+  return &h, nil
 }
 
 func OpenHttpSource( url_root string, path string ) (hsrc *HttpSource, err error ) {
