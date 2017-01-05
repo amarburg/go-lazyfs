@@ -24,7 +24,7 @@ var AlphabetUrl,_ = url.Parse( TestUrlRoot + AlphabetPath )
 var LocalStoreRoot = "test_files/localfilestore/"
 var SparseStoreRoot = "test_files/localsparsestore/"
 
-var SparseHttpStoreRoot = "test_files/httpsparse/"
+var HttpSourceSparseStore = "test_files/httpsparse/"
 
 var BadPath = "test_files/a/y/foo.fs"
 
