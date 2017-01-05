@@ -1,7 +1,9 @@
 package lazyfs
 
 import "os"
+import "io"
 
+import "fmt"
 
 type LocalFileStoreError struct {
 	Err string
@@ -12,24 +14,50 @@ func (e LocalFileStoreError) Error() string {
 }
 
 type LocalFileStore struct {
-	file *os.File
+	source	FileSource
+	root		string
+	file    *os.File
 }
 
-func OpenLocalFileStore( name string ) (*LocalFileStore, error) {
-	f,err := os.Open(name)
-	fs := LocalFileStore{ file: f }
-	return &fs, err
+func OpenLocalFileStore( source FileSource, root string ) (*LocalFileStore, error) {
+	fs := LocalFileStore{ file: nil, root: root, source: source }
+	return &fs, nil
+}
+
+// Load does the actual Lazy-loading of the file from the source to the
+// local store.
+func (fs *LocalFileStore) Load( )  error {
+	if fs.file == nil {
+
+	f,err := os.Open( fs.root + fs.source.Path())
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	reader := fs.source.Reader()
+	io.Copy( f, reader )
+
+fs.file = f
+
+	}
+	return  nil
 }
 
 func (fs *LocalFileStore) ReadAt( p []byte, off int64) (n int, err error) {
-		return fs.file.ReadAt( p, off )
+	if err := fs.Load(); err != nil { return 0,err }
+
+	return fs.file.ReadAt( p, off )
 }
 
-func (fs *LocalFileStore) WriteAt(p []byte, off int64) (n int, err error) {
-	return 0,nil
-}
+// func (fs *LocalFileStore) WriteAt(p []byte, off int64) (n int, err error) {
+// 	return 0,nil
+// }
 
 func (fs *LocalFileStore) HasAt( p []byte, off int64 ) (n int, err error) {
+	if err := fs.Load(); err != nil  {return 0,err}
+
+
 	len := int64(cap( p ))
 	sz,_ := fs.FileSize()
 

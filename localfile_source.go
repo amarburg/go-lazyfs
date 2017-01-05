@@ -2,12 +2,12 @@ package lazyfs
 
 import "os"
 import "io"
-import "fmt"
+//import "fmt"
 
 type LocalFileSource struct {
   root, path string
   file *os.File
-  store FileStorage
+  //store FileStorage
 }
 
 func OpenLocalFileSource( root string, path string ) (fsrc *LocalFileSource, err error ) {
@@ -18,28 +18,28 @@ func OpenLocalFileSource( root string, path string ) (fsrc *LocalFileSource, err
   return &LocalFileSource{ root:root, path: path, file: f }, err
 }
 
-func (fs *LocalFileSource) SetBackingStore( store FileStorage ) {
-	fs.store = store
-}
+// func (fs *LocalFileSource) SetBackingStore( store FileStorage ) {
+// 	fs.store = store
+// }
 
 
 func (fs *LocalFileSource) ReadAt( p []byte, off int64 ) (n int, err error) {
-  if fs.store != nil {
-    //fmt.Println("Checking store")
-
-    if _,err := fs.store.HasAt(p,off); err == nil  {
-      fmt.Println("Retrieving from store")
-      return fs.store.ReadAt( p, off )
-    } else {
-      fmt.Println( "Need to update store")
-      n,_ := fs.file.ReadAt(p,off)
-      fs.store.WriteAt(p[:n], off)
-
-      return n, nil
-    }
-  } else {
+  // if fs.store != nil {
+  //   //fmt.Println("Checking store")
+  //
+  //   if _,err := fs.store.HasAt(p,off); err == nil  {
+  //     fmt.Println("Retrieving from store")
+  //     return fs.store.ReadAt( p, off )
+  //   } else {
+  //     fmt.Println( "Need to update store")
+  //     n,_ := fs.file.ReadAt(p,off)
+  //     fs.store.WriteAt(p[:n], off)
+  //
+  //     return n, nil
+  //   }
+  // } else {
     return fs.file.ReadAt(p,off)
-  }
+//  }
 }
 
 func (fs *LocalFileSource) FileSize() (int64,error) {

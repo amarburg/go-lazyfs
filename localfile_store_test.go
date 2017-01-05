@@ -6,8 +6,9 @@ import (
 )
 
 // Test actually uses the source files...
-func TestLocalFileStore(t *testing.T) {
-  fs,_ := OpenLocalFileStore( LocalFilesRoot + AlphabetPath )
+func TestLocalFileStore(t *testing.T ) {
+  src,_ := OpenLocalFileSource( LocalFilesRoot, AlphabetPath )
+  fs,_ := OpenLocalFileStore( src, LocalStoreRoot )
 
   if fs == nil {
     t.Fatal("LocalFileStore doesn't exist")
