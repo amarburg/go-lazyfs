@@ -2,10 +2,10 @@ package lazyfs
 
 import "testing"
 
-import "github.com/amarburg/go-lazyfs-testfiles"
+import "github.com/amarburg/go-lazyfs-testfiles/http_server"
 
 func TestHttpSource(t *testing.T) {
-  srv := lazyfs_testfiles.HttpServer( 4567, "../go-lazyfs-testfiles" )
+  srv := lazyfs_testfiles.HttpServer( 4567 )
 
   fs,err := OpenHttpSource( *AlphabetUrl )
 

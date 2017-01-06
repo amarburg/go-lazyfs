@@ -21,7 +21,9 @@ And these stores:
 
 In the long-run I think one or more database-backed Stores will be the preferred solution for active deployment.
 
-My first Golang library, so excuse any non-idiomatic uses or other tomfoolery.
+My first Golang library, so excuse any non-idiomatic patterns or other tomfoolery.
+
+The repo [go-lazyfs-benchmarking](https://github.com/amarburg/go-lazyfs-benchmarking) contains a number of benchmarking tests which are computationally (or network bandwidth) more expensive (not appropriate as frequently-run testcases).
 
 ## TODO
 
