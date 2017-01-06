@@ -36,6 +36,12 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
   client := http.Client{}
   response, err := client.Do( request )
 
+  if err != nil {
+    panic( fmt.Sprintf("error from HTTP client: %s\n", err.Error() ))
+  } else if response == nil {
+    panic( "Nil response from HTTP client")
+  }
+
 //fmt.Println(response)
 //fmt.Println(p)
   //TODO: Check status

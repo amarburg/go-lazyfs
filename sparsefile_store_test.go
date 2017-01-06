@@ -1,8 +1,10 @@
 package lazyfs
 
 import "testing"
-import "net/url"
+//import "net/url"
 import "io"
+import "github.com/amarburg/go-lazyfs-testfiles"
+
 
 func TestSparseFileStore(t *testing.T) {
   src,_ := OpenLocalFileSource( LocalFilesRoot, AlphabetPath )
@@ -44,8 +46,9 @@ func TestSparseFileStore(t *testing.T) {
 
 func TestHttpSourceSparseStore( t *testing.T ) {
 
-  src_url,_ := url.Parse( TestUrlRoot+AlphabetPath)
-  source,err := OpenHttpSource( *src_url )
+  srv := lazyfs_testfiles.HttpServer( 4567, "../go-lazyfs-testfiles" )
+
+  source,err := OpenHttpSource( *AlphabetUrl  )
   if err != nil {
     t.Fatal("Couldn't open HttpFSSource")
   }
@@ -76,4 +79,6 @@ func TestHttpSourceSparseStore( t *testing.T ) {
 
   }
 
+
+srv.Stop()
 }

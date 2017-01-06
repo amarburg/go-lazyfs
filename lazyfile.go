@@ -2,18 +2,21 @@ package lazyfs
 
 import "io"
 
+type File interface {
+io.ReaderAt
+FileSize() (int64,error)
+}
+
 type FileSource interface {
-  FileSize() (int64,error)
+  File
   Reader() (io.Reader)
   Path() string
-  io.ReaderAt
 }
 
 type FileStorage interface {
-  io.ReaderAt
-  //io.WriterAt
+    File
+    //io.WriterAt
   HasAt( p []byte, off int64 ) (int, error)
-  FileSize() (int64,error)
 }
 
 // type LazyFile struct {

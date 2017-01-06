@@ -16,9 +16,10 @@ var test_pairs = []struct {
 
 var AlphabetSize int64 = 26
 
-var LocalFilesRoot = "test_files/a/"
-var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_files/a/"
-var AlphabetPath = "x/alphabet.fs"
+var LocalFilesRoot = "../go-lazyfs-testfiles/"
+//var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_files/a/"
+var TestUrlRoot = "http://localhost:4567/"
+var AlphabetPath = "alphabet.fs"
 var AlphabetUrl,_ = url.Parse( TestUrlRoot + AlphabetPath )
 
 var LocalStoreRoot = "test_files/localsource_localstore/"
