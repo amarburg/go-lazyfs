@@ -82,3 +82,11 @@ func (fs *LocalFileStore) FileSize() (int64,error) {
 	stat,_ := fs.file.Stat()
 	return stat.Size(),nil
 }
+
+func (fs *LocalFileStore) Reader() (io.Reader) {
+	return fs.source.Reader()
+}
+
+func (fs *LocalFileStore) Path() string {
+	return fs.source.Path()
+}

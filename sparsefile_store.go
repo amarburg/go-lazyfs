@@ -139,3 +139,11 @@ func (fs *SparseFileStore) FileSize() (int64,error) {
 	stat,_ := fs.file.Stat()
 	return stat.Size(),nil
 }
+
+func (fs *SparseFileStore) Reader() (io.Reader) {
+	return fs.source.Reader()
+}
+
+func (fs *SparseFileStore) Path() string {
+	return fs.source.Path()
+}
