@@ -8,7 +8,7 @@ var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/go-lazyfs-testfile
 var AlphabetPath = "alphabet.fs"
 var AlphabetUrl,_ = url.Parse( TestUrlRoot + AlphabetPath )
 
-var HttpSourceSparseStore = "cache/httpsource_sparsestore/"
+var HttpSourceSparseStore = "test_cache/httpsource_sparsestore/"
 
 var BufSize = 10
 
