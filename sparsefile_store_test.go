@@ -46,7 +46,7 @@ func TestSparseFileStore(t *testing.T) {
 
 func TestHttpSourceSparseStore( t *testing.T ) {
 
-  srv := lazyfs_testfiles.HttpServer( 4567 )
+  srv := lazyfs_testfiles_http_server.HttpServer( 4567 )
 
   source,err := OpenHttpSource( *AlphabetUrl  )
   if err != nil {

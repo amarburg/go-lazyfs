@@ -7,12 +7,17 @@ import "strings"
 import "strconv"
 import "net/url"
 
+
+type HttpStatistics struct {
+  Transactions int
+  Errors int
+  ContentBytesRead int
+  TotalBytesWritten, TotalBytesRead int
+}
+
 type HttpSource struct {
   url url.URL
-  // url string
-  // path string
-  //client http.Client
-  //store FileStorage
+  Stats HttpStatistics
 }
 
 func OpenHttpSource( url url.URL ) (hsrc *HttpSource, err error ) {
@@ -36,15 +41,21 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
   client := http.Client{}
   response, err := client.Do( request )
 
+  // How to get size of tx/rx without serializing twice?
+  fs.Stats.Transactions++
+
   if err != nil {
+    fs.Stats.Errors++
     panic( fmt.Sprintf("error from HTTP client: %s\n", err.Error() ))
   } else if response == nil {
     panic( "Nil response from HTTP client")
   }
 
-//fmt.Println(response)
-//fmt.Println(p)
-  //TODO: Check status
+  cl := response.Header["Content-Length"]
+  if cl != nil {
+    b,_ := strconv.Atoi(response.Header["Content-Length"][0])
+    fs.Stats.ContentBytesRead += b
+  }
 
   defer response.Body.Close()
 

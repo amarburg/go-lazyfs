@@ -2,15 +2,14 @@ package lazyfs_benchmarking
 
 import "testing"
 import "github.com/amarburg/go-lazyfs"
+import "github.com/amarburg/go-lazyfs-testfiles"
 import "net/url"
+import "fmt"
 
 var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/go-lazyfs-testfiles/master/"
-var AlphabetPath = "alphabet.fs"
-var AlphabetUrl,_ = url.Parse( TestUrlRoot + AlphabetPath )
+var AlphabetUrl,_ = url.Parse( TestUrlRoot + lazyfs_testfiles.AlphabetFile )
 
-var HttpSourceSparseStore = "test_cache/httpsource_sparsestore/"
-
-var BufSize = 10
+var HttpSourceSparseStore = "test_cache/github_benchmark/"
 
 func BenchmarkGithubHttpSource( b *testing.B ) {
 
@@ -27,8 +26,11 @@ func BenchmarkGithubHttpSource( b *testing.B ) {
       // Test ReadAt
       n,err := source.ReadAt(buf, 0)
       if n != BufSize || err != nil { panic("bad read")}
-
   }
+
+  if b.N > 1 {
+  fmt.Printf("Read %d bytes of content over HTTP\n", source.Stats.ContentBytesRead)
+}
 }
 
 func BenchmarkGithubHttpSourceSparseStore( b *testing.B ) {
@@ -48,30 +50,8 @@ func BenchmarkGithubHttpSourceSparseStore( b *testing.B ) {
       if n != BufSize || err != nil { panic("bad read")}
   }
 
-  //
-
-  //
-  // for _,test := range test_pairs {
-  //
-  //   buf := make([]byte,BufSize)
-  //
-  //   // Test ReadAt
-  //   n,err := store.ReadAt(buf, test.offset)
-  //
-  //   if err != nil && err != io.EOF {
-  //     t.Errorf("Error on read: %s", err.Error() )
-  //   }
-  //
-  //   if n != test.length {
-  //     t.Error("Expected",test.length,"bytes, got",n)
-  //   }
-  //
-  //   buf = buf[:n]
-  //
-  //   if !CheckTestFile(buf, test.offset) {
-  //     t.Errorf("\"%s\" doesn't match test file at %d", n, 0)
-  //   }
-  //
-  // }
+  if b.N > 1  {
+  fmt.Printf("Read %d bytes of content over HTTP\n", source.Stats.ContentBytesRead)
+}
 
 }
