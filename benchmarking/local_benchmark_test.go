@@ -11,7 +11,8 @@ import "net/url"
 
 
 func BenchmarkLocalHttpSource( b *testing.B ) {
-  AlphabetUrl,_ := url.Parse( "http://localhost:4567/" + lazyfs_testfiles.AlphabetFile )
+  BufSize := 1024
+  AlphabetUrl,_ := url.Parse( "http://localhost:4567/" + lazyfs_testfiles.TenMegBinaryFile )
   srv := lazyfs_testfiles_http_server.HttpServer( 4567 )
   defer srv.Stop()
 
@@ -24,11 +25,13 @@ func BenchmarkLocalHttpSource( b *testing.B ) {
 
   b.ResetTimer()
   for i := 0; i < b.N; i++ {
+    offset := rand.Intn( lazyfs_testfiles.TenMegFileLength - BufSize )
+
       buf := make([]byte,BufSize)
       bytesPrev := source.Stats.ContentBytesRead
 
       // Test ReadAt
-      n,_ := source.ReadAt(buf, 0)
+      n,_ := source.ReadAt(buf, int64(offset))
       //fmt.Println(n,err)
       if n != BufSize { panic("bad read")}
 
