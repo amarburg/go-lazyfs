@@ -16,18 +16,20 @@ var test_pairs = []struct {
 
 var AlphabetSize int64 = 26
 
+var TestCacheDir = "test_cache/"
+
 var LocalFilesRoot = "../go-lazyfs-testfiles/"
 //var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_cache/a/"
 var TestUrlRoot = "http://localhost:4567/"
 var AlphabetPath = "alphabet.fs"
 var AlphabetUrl,_ = url.Parse( TestUrlRoot + AlphabetPath )
 
-var LocalStoreRoot = "test_cache/localsource_localstore/"
-var SparseStoreRoot = "test_cache/localsource_sparsestore/"
+var LocalStoreRoot = TestCacheDir + "localsource_localstore/"
+var SparseStoreRoot = TestCacheDir + "localsource_sparsestore/"
 
-var HttpSourceSparseStore = "test_cache/httpsource_sparsestore/"
+var HttpSourceSparseStore = TestCacheDir + "httpsource_sparsestore/"
 
-var BadPath = "test_cache/a/y/foo.fs"
+var BadPath = TestCacheDir + "a/y/foo.fs"
 
 
 var OOIRawDataRootURL = "https://rawdata.oceanobservatories.org/files/"
