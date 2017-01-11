@@ -31,6 +31,15 @@ func (bench *LazyFSBenchmark) Run( source lazyfs.FileSource, b *testing.B ) {
 
 }
 
+func MakeOOIHttpSource() (*lazyfs.HttpSource) {
+  var SourceUrl,_ = url.Parse( "https://rawdata.oceanobservatories.org/files/RS03ASHS/PN03B/06-CAMHDA301/2016/01/01/CAMHDA301-20160101T000000Z.mp4" )
+  source,err := lazyfs.OpenHttpSource( *SourceUrl )
+  if err != nil {
+    panic("Couldn't open HttpFSSource")
+  }
+  return source
+}
+
 func MakeLocalHttpSource() (*lazyfs.HttpSource ) {
   var SourceUrl,_ = url.Parse( "http://localhost:4567/" + lazyfs_testfiles.TenMegBinaryFile )
   source,err := lazyfs.OpenHttpSource( *SourceUrl )
