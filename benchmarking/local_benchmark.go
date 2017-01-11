@@ -31,7 +31,6 @@ func (bench *LazyFSBenchmark) Run( source lazyfs.FileSource, b *testing.B ) {
 
 }
 
-
 func MakeLocalHttpSource() (*lazyfs.HttpSource ) {
   var SourceUrl,_ = url.Parse( "http://localhost:4567/" + lazyfs_testfiles.TenMegBinaryFile )
   source,err := lazyfs.OpenHttpSource( *SourceUrl )

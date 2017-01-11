@@ -51,11 +51,12 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
     panic( "Nil response from HTTP client")
   }
 
-  cl := response.Header["Content-Length"]
-  if cl != nil {
-    b,_ := strconv.Atoi(response.Header["Content-Length"][0])
-    fs.Stats.ContentBytesRead += b
-  }
+// fmt.Println(response.Header)
+//   cl := response.Header["Content-Length"]
+//   if cl != nil {
+//     b,_ := strconv.Atoi(response.Header["Content-Length"][0])
+//     //fs.Stats.ContentBytesRead += b
+//   }
 
   defer response.Body.Close()
 
@@ -65,6 +66,8 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
     idx += n
     if idx >= len(p) || err != nil { break }
   }
+
+  fs.Stats.ContentBytesRead += len(p)
 
   return idx, err
 }
