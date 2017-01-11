@@ -12,7 +12,7 @@ import "github.com/amarburg/go-lazyfs"
 
 import "fmt"
 
-type BenchmarkResult struct {
+type Bench struct {
   Iter int
   BufSize int
   Source,Store  string
@@ -20,7 +20,7 @@ type BenchmarkResult struct {
   HttpBytes  int
 }
 
-func (result BenchmarkResult) Write( out io.Writer ) {
+func (result Bench) Write( out io.Writer ) {
 
     io.WriteString( out, fmt.Sprintf("http,sparse,%d,%d,%d,%.1f\n",
                 result.Iter,
@@ -30,23 +30,20 @@ func (result BenchmarkResult) Write( out io.Writer ) {
 }
 
 
-func RunBenchmark( source lazyfs.FileSource, N int, bufSize int ) BenchmarkResult {
+func (bench *Bench) RunBenchmark( source lazyfs.FileSource )  {
 
     startTime := time.Now()
-    for i := 0; i < N; i++ {
-      offset := rand.Intn( lazyfs_testfiles.TenMegFileLength - bufSize )
+    for i := 0; i < bench.Iter; i++ {
+      offset := rand.Intn( lazyfs_testfiles.TenMegFileLength - bench.BufSize )
 
-        buf := make([]byte,bufSize)
+        buf := make([]byte,bench.BufSize)
 
         // Test ReadAt
         n,_ := source.ReadAt(buf, int64(offset))
-        if n != bufSize { panic("bad read") }
-
-        //b.SetBytes( int64(n) )
-
+        if n != bench.BufSize { panic("bad read") }
     }
-    return BenchmarkResult{ Iter: N,
-                            Duration: time.Now().Sub( startTime ) }
+
+    bench.Duration = time.Now().Sub( startTime )
 }
 
 
@@ -67,14 +64,17 @@ func main() {
         source := lazyfs_benchmarking.MakeLocalHttpSource()
         store  := lazyfs_benchmarking.MakeSparseStore( source )
 
-        result := RunBenchmark( store, iter, bufsize )
+        bench := Bench{
+          BufSize: bufsize,
+          Source: "http",
+          Store:  "sparse",
+          Iter: iter,
+        }
 
-        result.BufSize = bufsize
-        result.Source = "http"
-        result.Store  = "sparse"
-        result.HttpBytes = source.Stats.ContentBytesRead
+        bench.RunBenchmark( store )
+        bench.HttpBytes = source.Stats.ContentBytesRead
 
-        result.Write( os.Stderr )
+        bench.Write( os.Stderr )
       }
     }
   }
