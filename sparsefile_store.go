@@ -33,7 +33,6 @@ func OpenSparseFileStore( source FileSource, root string ) (*SparseFileStore,err
 }
 
 func InitializeSparsefile( sparsefile string, sz int64 ) (*os.File, error) {
-
 	// Fill file with with null
 
 	fileinfo,err := os.Stat( sparsefile )
@@ -59,7 +58,7 @@ func InitializeSparsefile( sparsefile string, sz int64 ) (*os.File, error) {
 
 
 type ZeroReader struct {
-size int64
+  size int64
 }
 
 func (w *ZeroReader) Read( p []byte) (n int, err error) {
