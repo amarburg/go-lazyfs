@@ -22,31 +22,57 @@ type Bench struct {
 
 func (result Bench) Write( out io.Writer ) {
 
-    io.WriteString( out, fmt.Sprintf("http,sparse,%d,%d,%d,%.1f\n",
-                result.Iter,
-                result.BufSize,
-                result.Duration.Nanoseconds()/int64(result.Iter),
-                float32(result.HttpBytes) / float32(result.Iter) ) )
+  io.WriteString( out, fmt.Sprintf("%s,%s,%d,%d,%d,%.1f\n",
+    result.Source, result.Store,
+    result.Iter,
+    result.BufSize,
+    result.Duration.Nanoseconds()/int64(result.Iter),
+    float32(result.HttpBytes) / float32(result.Iter) ) )
 }
 
 
 func (bench *Bench) RunBenchmark( source lazyfs.FileSource )  {
 
-    startTime := time.Now()
-    for i := 0; i < bench.Iter; i++ {
-      offset := rand.Intn( lazyfs_testfiles.TenMegFileLength - bench.BufSize )
+  sz := source.FileSize()
 
-        buf := make([]byte,bench.BufSize)
+  startTime := time.Now()
+  for i := 0; i < bench.Iter; i++ {
+    offset := rand.Intn( sz - bench.BufSize )
 
-        // Test ReadAt
-        n,_ := source.ReadAt(buf, int64(offset))
-        if n != bench.BufSize { panic("bad read") }
-    }
+    buf := make([]byte,bench.BufSize)
 
-    bench.Duration = time.Now().Sub( startTime )
+    // Test ReadAt
+    n,_ := source.ReadAt(buf, int64(offset))
+    if n != bench.BufSize { panic("bad read") }
+  }
+
+  bench.Duration = time.Now().Sub( startTime )
 }
 
 
+
+func Iterate( benchFunc func( bench *Bench ) ) {
+
+  bufsizes := []int{32,128,256,1024,4096}
+  iterations := []int{1e2,1e4}
+
+  for _,bufsize := range bufsizes {
+    for _,iter := range iterations {
+      for rep := 0; rep < 2; rep++ {
+
+        bench := &Bench{
+          BufSize: bufsize,
+          Iter: iter,
+        }
+
+        benchFunc( bench )
+
+        bench.Write( os.Stderr )
+      }
+    }
+  }
+
+}
 
 
 func main() {
@@ -54,28 +80,22 @@ func main() {
   srv := lazyfs_testfiles_http_server.HttpServer( 4567 )
   defer srv.Stop()
 
-  bufsizes := []int{32,128,256,1024,4096}
-  iterations := []int{1e2,1e4,1e6}
+  Iterate( func( bench *Bench ) {
+    source := lazyfs_benchmarking.MakeLocalHttpSource()
+    bench.Source = "http"
+    bench.Store = ""
 
-  for _,bufsize := range bufsizes {
-    for _,iter := range iterations {
-      for rep := 0; rep < 2; rep++ {
+    bench.RunBenchmark( source )
+    bench.HttpBytes = source.Stats.ContentBytesRead
+  })
 
-        source := lazyfs_benchmarking.MakeLocalHttpSource()
-        store  := lazyfs_benchmarking.MakeSparseStore( source )
+  Iterate( func( bench *Bench ) {
+    source := lazyfs_benchmarking.MakeLocalHttpSource()
+    store  := lazyfs_benchmarking.MakeSparseStore( source )
+    bench.Source = "http"
+    bench.Store = "sparse"
 
-        bench := Bench{
-          BufSize: bufsize,
-          Source: "http",
-          Store:  "sparse",
-          Iter: iter,
-        }
-
-        bench.RunBenchmark( store )
-        bench.HttpBytes = source.Stats.ContentBytesRead
-
-        bench.Write( os.Stderr )
-      }
-    }
-  }
+    bench.RunBenchmark( store )
+    bench.HttpBytes = source.Stats.ContentBytesRead
+  })
 }
