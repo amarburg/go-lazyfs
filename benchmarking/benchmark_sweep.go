@@ -48,15 +48,29 @@ func (bench *Bench) RunBenchmark( source lazyfs.FileSource )  {
   bench.Duration = time.Now().Sub( startTime )
 }
 
+type IterationConfig struct {
+  BufSizes    []int
+  Iterations  []int
+  Reps        int
+}
 
-func Iterate( benchFunc func( bench *Bench ) ) {
 
-  bufsizes := []int{32,128,256,1024,4096}
-  iterations := []int{1e2,1e4}
+func Iterate( benchFunc func( bench *Bench ),
+              confFuncs ...func( conf *IterationConfig ) ){
 
-  for _,bufsize := range bufsizes {
-    for _,iter := range iterations {
-      for rep := 0; rep < 2; rep++ {
+  config := IterationConfig{
+    BufSizes: []int{32,128,256,1024,4096},
+    Iterations: []int{1e2,1e4},
+    Reps: 10,
+  }
+
+  for _,f := range confFuncs {
+    f( &config )
+  }
+
+  for _,bufsize := range config.BufSizes {
+    for _,iter := range config.Iterations {
+      for rep := 0; rep < config.Reps; rep++ {
 
         bench := &Bench{
           BufSize: bufsize,
