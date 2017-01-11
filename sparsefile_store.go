@@ -38,7 +38,7 @@ func InitializeSparsefile( sparsefile string, sz int64 ) (*os.File, error) {
 	fileinfo,err := os.Stat( sparsefile )
 	if err != nil || fileinfo.Size() != sz {
 
-		fmt.Println("Creating sparsefile size", sparsefile, sz)
+		//fmt.Println("Creating sparsefile size", sparsefile, sz)
 		os.MkdirAll( filepath.Dir(sparsefile), 0755 )
 		dest,err := os.Create( sparsefile )
 
