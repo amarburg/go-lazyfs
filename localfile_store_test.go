@@ -4,10 +4,12 @@ import (
   "testing"
   "io"
 )
+import "github.com/amarburg/go-lazyfs-testfiles"
+
 
 // Test actually uses the source files...
 func TestLocalFileStore(t *testing.T ) {
-  src,_ := OpenLocalFileSource( LocalFilesRoot, AlphabetPath )
+  src,_ := OpenLocalFileSource( LocalFilesRoot, lazyfs_testfiles.AlphabetFile )
   fs,_ := OpenLocalFileStore( src, LocalStoreRoot )
 
   if fs == nil {

@@ -3,16 +3,17 @@ package lazyfs
 import "testing"
 import "io"
 
+import "github.com/amarburg/go-lazyfs-testfiles"
 
 func TestLocalFileSource(t *testing.T) {
-  fs,err := OpenLocalFileSource( LocalFilesRoot, AlphabetPath )
+  fs,err := OpenLocalFileSource( LocalFilesRoot, lazyfs_testfiles.AlphabetFile )
 
   //if fs == nil {
   //  t.Error("FileStore doesn't exist")
   //}
 
   if err != nil {
-    t.Fatal("Error on opening LocalFileSource for", LocalFilesRoot+AlphabetPath)
+    t.Fatal("Error on opening LocalFileSource for", LocalFilesRoot+lazyfs_testfiles.AlphabetFile)
   }
 
   for _,test := range test_pairs {

@@ -1,6 +1,6 @@
 package lazyfs
 
-import "net/url"
+//import "net/url"
 import "reflect"
 import "github.com/amarburg/go-lazyfs-testfiles"
 
@@ -19,11 +19,10 @@ var AlphabetSize int64 = 26
 
 var TestCacheDir = "test_cache/"
 
-var LocalFilesRoot = "../go-lazyfs-testfiles/"
+var LocalFilesRoot = lazyfs_testfiles.RepoRoot() + "/"
 //var TestUrlRoot = "https://raw.githubusercontent.com/amarburg/lazyfs/master/test_cache/a/"
-var TestUrlRoot = "http://localhost:4567/"
-var AlphabetPath = lazyfs_testfiles.AlphabetFile
-var AlphabetUrl,_ = url.Parse( TestUrlRoot + lazyfs_testfiles.AlphabetFile )
+//var TestUrlRoot = "http://localhost:4567/"
+//var AlphabetPath = lazyfs_testfiles.AlphabetFile
 
 var LocalStoreRoot = TestCacheDir + "localsource_localstore/"
 var SparseStoreRoot = TestCacheDir + "localsource_sparsestore/"
