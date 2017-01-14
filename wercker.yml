@@ -38,15 +38,6 @@ build:
         code: |
           go build ./...
 
-test:
-
-  steps:
-    # Gets the testing dependencies
-    - script:
-        name: go get
-        code: |
-          go get -t
-
     # Test the project
     - script:
         name: go test
