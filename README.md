@@ -2,8 +2,7 @@
 
 
 [![GoDoc](https://godoc.org/github.com/amarburg/go-lazyfs?status.svg)](https://godoc.org/github.com/amarburg/go-lazyfs)
-[![Travis CI](https://travis-ci.org/amarburg/go-lazyfs.svg?branch=master)](https://travis-ci.org/amarburg/go-lazyfs)
-
+[![wercker status](https://app.wercker.com/status/385d92fd589e317c6cf9f538013efc54/s/master "wercker status")](https://app.wercker.com/project/byKey/385d92fd589e317c6cf9f538013efc54)
 
 Provides transparent byte-level caching of files pulled from a remote source (currently either another filesystem or an HTTP server that supports `Content-Range`).   
 
