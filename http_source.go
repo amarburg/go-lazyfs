@@ -9,14 +9,14 @@ import "net/url"
 
 import prom "github.com/prometheus/client_golang/prometheus"
 
-//==== Prometheus instrumentation ==
+//==== prometheus instrumentation ==
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 var (
-	PromHttpRequests = prometheus.NewCounterVec(
+	promHttpRequests = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "http_requests_total",
 			Help: "Total number of HTTP requests.",
@@ -25,7 +25,7 @@ var (
     []string{"code","root","method"},
 	)
 
-  PromHttpResponseSize = prometheus.NewSummaryVec(
+  promHttpResponseSize = prometheus.NewSummaryVec(
     prometheus.SummaryOpts{
       Name: "lazyhttp_content_size_bytes",
 			Help: "Total size of HTTP content requested.",
@@ -34,26 +34,12 @@ var (
     []string{"root",},
   )
 
-// 	PromCacheMisses = prometheus.NewCounterVec(
-// 		prometheus.CounterOpts{
-// 			Name: "cache_misses_total",
-// 			Help: "Number of cache misses.",
-// 		},
-//     []string{"store"},
-// 	)
-//
-// 	PromCacheSize = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-// 		Name: "cache_size",
-// 		Help: "Number of elements in cache",
-// 	},
-//   []string{"store"},
-// )
 )
 
 func init() {
-	prometheus.MustRegister(PromHttpRequests)
-  prometheus.MustRegister(PromHttpResponseSize)
-	// prometheus.MustRegister(PromCacheSize)
+	prometheus.MustRegister(promHttpRequests)
+  prometheus.MustRegister(promHttpResponseSize)
+	// prometheus.MustRegister(promCacheSize)
 }
 
 //====
@@ -91,7 +77,7 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
   client := http.Client{}
   response, err := client.Do( request )
 
-PromHttpRequests.With( prom.Labels{"code": fmt.Sprintf("%d",response.StatusCode),
+promHttpRequests.With( prom.Labels{"code": fmt.Sprintf("%d",response.StatusCode),
               "root": fs.url.String(),
               "method": "GET" } ).Inc()
 
@@ -121,7 +107,7 @@ PromHttpRequests.With( prom.Labels{"code": fmt.Sprintf("%d",response.StatusCode)
     if idx >= len(p) || err != nil { break }
   }
 
-  PromHttpResponseSize.With( prom.Labels{
+  promHttpResponseSize.With( prom.Labels{
                 "root": fs.url.String() } ).Observe( float64(len(p)) )
 
   // fs.Stats.ContentBytesRead += len(p)
