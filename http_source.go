@@ -6,6 +6,7 @@ import "io"
 import "strings"
 import "strconv"
 import "net/url"
+import "time"
 
 import prom "github.com/prometheus/client_golang/prometheus"
 
@@ -34,11 +35,21 @@ var (
     []string{"root",},
   )
 
+  promHttpDuration = prometheus.NewSummaryVec(
+    prometheus.SummaryOpts{
+      Name: "http_request_duration_microseconds",
+			Help: "Duration of HTTP request.",
+      ConstLabels: prom.Labels{ "handler": "lazyhttp" },
+    },
+    []string{"root",},
+  )
+
 )
 
 func init() {
 	prometheus.MustRegister(promHttpRequests)
   prometheus.MustRegister(promHttpResponseSize)
+  prometheus.MustRegister(promHttpDuration)
 	// prometheus.MustRegister(promCacheSize)
 }
 
@@ -67,6 +78,7 @@ func OpenHttpSource( url url.URL ) (hsrc *HttpSource, err error ) {
 
 func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
 
+  startTime := time.Now()
   request, err := http.NewRequest("GET", fs.url.String(), nil)
 
   range_str := fmt.Sprintf("bytes=%d-%d", off, off+int64(cap(p)))
@@ -86,9 +98,9 @@ promHttpRequests.With( prom.Labels{"code": fmt.Sprintf("%d",response.StatusCode)
 
   if err != nil {
     // fs.Stats.Errors++
-    panic( fmt.Sprintf("error from HTTP client: %s\n", err.Error() ))
+    return 0,fmt.Errorf("error from HTTP client: %s\n", err.Error() )
   } else if response == nil {
-    panic( "Nil response from HTTP client")
+    return 0,fmt.Errorf( "Nil response from HTTP client")
   }
 
 // fmt.Println(response.Header)
@@ -109,6 +121,8 @@ promHttpRequests.With( prom.Labels{"code": fmt.Sprintf("%d",response.StatusCode)
 
   promHttpResponseSize.With( prom.Labels{
                 "root": fs.url.String() } ).Observe( float64(len(p)) )
+promHttpDuration.With( prom.Labels{
+              "root": fs.url.String() } ).Observe( float64(time.Since(startTime ).Nanoseconds())/1000.0 )
 
   // fs.Stats.ContentBytesRead += len(p)
 
