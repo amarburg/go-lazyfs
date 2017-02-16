@@ -7,17 +7,67 @@ import "strings"
 import "strconv"
 import "net/url"
 
+import prom "github.com/prometheus/client_golang/prometheus"
 
-type HttpStatistics struct {
-  Transactions int
-  Errors int
-  ContentBytesRead int
-  TotalBytesWritten, TotalBytesRead int
+//==== Prometheus instrumentation ==
+
+import (
+	"github.com/prometheus/client_golang/prometheus"
+)
+
+var (
+	PromHttpRequests = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "http_requests_total",
+			Help: "Total number of HTTP requests.",
+      ConstLabels: prom.Labels{ "handler": "lazyhttp" },
+		},
+    []string{"code","root","method"},
+	)
+
+  PromHttpResponseSize = prometheus.NewSummaryVec(
+    prometheus.SummaryOpts{
+      Name: "lazyhttp_content_size_bytes",
+			Help: "Total size of HTTP content requested.",
+      ConstLabels: prom.Labels{ "handler": "lazyhttp" },
+    },
+    []string{"root",},
+  )
+
+// 	PromCacheMisses = prometheus.NewCounterVec(
+// 		prometheus.CounterOpts{
+// 			Name: "cache_misses_total",
+// 			Help: "Number of cache misses.",
+// 		},
+//     []string{"store"},
+// 	)
+//
+// 	PromCacheSize = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+// 		Name: "cache_size",
+// 		Help: "Number of elements in cache",
+// 	},
+//   []string{"store"},
+// )
+)
+
+func init() {
+	prometheus.MustRegister(PromHttpRequests)
+  prometheus.MustRegister(PromHttpResponseSize)
+	// prometheus.MustRegister(PromCacheSize)
 }
+
+//====
+
+
+// type HttpStatistics struct {
+//   Transactions int
+//   Errors int
+//   ContentBytesRead int
+//   TotalBytesWritten, TotalBytesRead int
+// }
 
 type HttpSource struct {
   url url.URL
-  Stats HttpStatistics
 }
 
 func OpenHttpSource( url url.URL ) (hsrc *HttpSource, err error ) {
@@ -41,11 +91,15 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
   client := http.Client{}
   response, err := client.Do( request )
 
+PromHttpRequests.With( prom.Labels{"code": fmt.Sprintf("%d",response.StatusCode),
+              "root": fs.url.String(),
+              "method": "GET" } ).Inc()
+
   // How to get size of tx/rx without serializing twice?
-  fs.Stats.Transactions++
+  //fs.Stats.Transactions++
 
   if err != nil {
-    fs.Stats.Errors++
+    // fs.Stats.Errors++
     panic( fmt.Sprintf("error from HTTP client: %s\n", err.Error() ))
   } else if response == nil {
     panic( "Nil response from HTTP client")
@@ -67,7 +121,10 @@ func (fs *HttpSource) ReadAt( p []byte, off int64 ) (n int, err error) {
     if idx >= len(p) || err != nil { break }
   }
 
-  fs.Stats.ContentBytesRead += len(p)
+  PromHttpResponseSize.With( prom.Labels{
+                "root": fs.url.String() } ).Observe( float64(len(p)) )
+
+  // fs.Stats.ContentBytesRead += len(p)
 
   return idx, err
 }
