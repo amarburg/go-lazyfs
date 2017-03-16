@@ -2,12 +2,18 @@ package lazyfs
 
 import "os"
 import "io"
+import "path"
 //import "fmt"
 
 type LocalFileSource struct {
   root, path string
   file *os.File
   //store FileStorage
+}
+
+func OpenLocalFile( file string ) (fsrc *LocalFileSource, err error ) {
+  root,path := path.Split(file)
+  return OpenLocalFileSource( root, path )
 }
 
 func OpenLocalFileSource( root string, path string ) (fsrc *LocalFileSource, err error ) {
