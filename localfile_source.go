@@ -11,17 +11,17 @@ type LocalFileSource struct {
   //store FileStorage
 }
 
-func OpenLocalFile( file string ) (fsrc *LocalFileSource, err error ) {
-  root,path := path.Split(file)
-  return OpenLocalFileSource( root, path )
+func OpenLocalFile( fpath string ) (fsrc *LocalFileSource, err error ) {
+  root,file := path.Split(fpath)
+  return OpenLocalFileSource( root, file )
 }
 
-func OpenLocalFileSource( root string, path string ) (fsrc *LocalFileSource, err error ) {
-  f,err := os.Open(root+path)
+func OpenLocalFileSource( root string, ff string ) (fsrc *LocalFileSource, err error ) {
+  f,err := os.Open( path.Join(root,ff) )
 
   // TODO:  Check for non-existent files
 
-  return &LocalFileSource{ root:root, path: path, file: f }, err
+  return &LocalFileSource{ root:root, path: ff, file: f }, err
 }
 
 // func (fs *LocalFileSource) SetBackingStore( store FileStorage ) {
