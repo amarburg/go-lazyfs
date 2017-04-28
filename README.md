@@ -1,6 +1,7 @@
 # LazyFS
 
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d81c2280fe8441d58c566d5c99cc30c8)](https://www.codacy.com/app/amarburg/go-lazyfs?utm_source=github.com&utm_medium=referral&utm_content=amarburg/go-lazyfs&utm_campaign=badger)
 [![GoDoc](https://godoc.org/github.com/amarburg/go-lazyfs?status.svg)](https://godoc.org/github.com/amarburg/go-lazyfs)
 [![wercker status](https://app.wercker.com/status/385d92fd589e317c6cf9f538013efc54/s/master "wercker status")](https://app.wercker.com/project/byKey/385d92fd589e317c6cf9f538013efc54)
 
