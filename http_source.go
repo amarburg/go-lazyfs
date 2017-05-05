@@ -138,26 +138,45 @@ func (fs *HttpSource) FileSize() (int64,error) {
                   }
 
   client := http.Client{}
-  response, _ := client.Do( request )
+  response, err := client.Do( request )
+	if err != nil {
+		return int64(-1), err
+	} else if response == nil {
+		return int64(-1), fmt.Errorf("Received no response")
+	}
+
   defer response.Body.Close()
 
   //TODO: Check status
 
   content_range := response.Header["Content-Range"]
   if content_range == nil {
-    panic( fmt.Sprintf("Response header didn't have Content-Range: %v", response.Header ))
+
+		return int64(-1), fmt.Errorf("Response header didn't have Content-Range: %v", response.Header )
+
+		// As a fallback, look for content-length
+		// content_length := response.Header["Content-Length"]
+		// if content_length == nil {
+		// 	panic( fmt.Sprintf("Response header didn't have Content-Range or Content-Length: %v", response.Header ))
+		// }
+		//
+		// l,err := strconv.Atoi( content_length[0] )
+		// if err != nil {
+		// 	panic( fmt.Sprintf("Couldn't extract content length from \"%s\": %s", content_length[0], err.Error()))
+		// }
+		// return int64( l ),nil
   }
 
   // Extract the Header
   splits := strings.Split( content_range[0], "/")
   if len(splits) != 2 {
-    panic( fmt.Sprintf("Couldn't parse the Content-Range header: ", content_range ) )
+    return int64(-1), fmt.Errorf("Couldn't parse the Content-Range header: ", content_range )
   }
 
   //fmt.Println( response.Header )
   l,err := strconv.Atoi(splits[1])
   if err != nil {
-    panic( fmt.Sprintf("Couldn't extract content length from \"%s\": %s", splits[1], err.Error()))
+    return int64(-1), fmt.Errorf("Couldn't extract content length from \"%s\": %s", splits[1], err.Error())
   }
   //fmt.Println("Got content length", l)
   return int64(l),nil
