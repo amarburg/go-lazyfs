@@ -9,8 +9,8 @@ import "github.com/amarburg/go-lazyfs-testfiles/http_server"
 func TestHttpSource(t *testing.T) {
 	srv := lazyfs_testfiles_http_server.HttpServer()
 
-	AlphabetUrl, _ := url.Parse(srv.Url + lazyfs_testfiles.AlphabetFile)
-	fs, err := OpenHttpSource(*AlphabetUrl)
+	AlphabetURL, _ := url.Parse(srv.Url + lazyfs_testfiles.AlphabetFile)
+	fs, err := OpenHttpSource(*AlphabetURL)
 
 	if err != nil {
 		t.Error("Couldn't create fs:", err)
