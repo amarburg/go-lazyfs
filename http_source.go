@@ -173,7 +173,6 @@ func (fs *HttpSource) FileSize() (int64, error) {
 	if err != nil {
 		return int64(-1), fmt.Errorf("Couldn't extract content length from \"%s\": %s", splits[1], err.Error())
 	}
-	fmt.Println("Got content length", l)
 
 	fasthttp.ReleaseResponse(response)
 	fasthttp.ReleaseRequest(request)
