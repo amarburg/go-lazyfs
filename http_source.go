@@ -1,11 +1,13 @@
 package lazyfs
 
+import "github.com/valyala/fasthttp"
 import "net/http"
 import "fmt"
 import "io"
 import "strings"
 import "strconv"
 import "net/url"
+import "bytes"
 import "time"
 
 import prom "github.com/prometheus/client_golang/prometheus"
@@ -63,32 +65,34 @@ func init() {
 
 type HttpSource struct {
 	url url.URL
+
+	client	fasthttp.Client
 }
 
 func OpenHttpSource(url url.URL) (hsrc *HttpSource, err error) {
-	h := HttpSource{url: url}
+	h := HttpSource{url: url,
+		client:   fasthttp.Client{},
+	}
+
 	return &h, nil
 }
 
-// func (fs *HttpSource) SetBackingStore( store FileStorage ) {
-// 	fs.store = store
-// }
 
 func (fs *HttpSource) ReadAt(p []byte, off int64) (n int, err error) {
 
 	startTime := time.Now()
-	request, err := http.NewRequest("GET", fs.url.String(), nil)
+	request := fasthttp.AcquireRequest()
+	request.SetRequestURI( fs.url.String() )
 
-	range_str := fmt.Sprintf("bytes=%d-%d", off, off+int64(cap(p)))
-	request.Header = map[string][]string{
-		"Range": {range_str},
-	}
+	// Byte ranges are inclusive...
+	fmt.Printf("Reading %d-%d from %s\n", off, off+int64(cap(p))-1, fs.url.String())
+	request.Header.SetByteRange( int(off), int(off)+cap(p)-1 )
 
-	client := http.Client{}
-	response, err := client.Do(request)
+	response := fasthttp.AcquireResponse()
+	err = fs.client.Do(request, response)
 
-	if response == nil {
-		return 0, fmt.Errorf("Nil response from HTTP client")
+	if err != nil {
+		return 0, fmt.Errorf("Error response from HTTP client")
 	}
 
 	promHttpRequests.With(prom.Labels{"code": fmt.Sprintf("%d", response.StatusCode),
@@ -100,32 +104,24 @@ func (fs *HttpSource) ReadAt(p []byte, off int64) (n int, err error) {
 		return 0, fmt.Errorf("error from HTTP client: %s\n", err.Error())
 	}
 
-	// fmt.Println(response.Header)
-	//   cl := response.Header["Content-Length"]
-	//   if cl != nil {
-	//     b,_ := strconv.Atoi(response.Header["Content-Length"][0])
-	//     //fs.Stats.ContentBytesRead += b
-	//   }
+	// This is probably not idiomatic
+	buffer := bytes.NewBuffer(nil)
+	response.BodyWriteTo(buffer)
+	responseLength := response.Header.ContentLength()
 
-	defer response.Body.Close()
+	copy(p,buffer.Bytes()[:responseLength])
 
-	idx := 0
-	for {
-		n, err = response.Body.Read(p[idx:])
-		idx += n
-		if idx >= len(p) || err != nil {
-			break
-		}
-	}
-
+	dt := time.Since( startTime )
 	promHttpResponseSize.With(prom.Labels{
 		"root": fs.url.String()}).Observe(float64(len(p)))
 	promHttpDuration.With(prom.Labels{
-		"root": fs.url.String()}).Observe(float64(time.Since(startTime).Nanoseconds()) / 1000.0)
+		"root": fs.url.String()}).Observe(float64(dt.Nanoseconds()) / 1000.0)
 
-	// fs.Stats.ContentBytesRead += len(p)
 
-	return idx, err
+	fasthttp.ReleaseResponse(response)
+	fasthttp.ReleaseRequest(request)
+
+	return responseLength, err
 }
 
 func (fs *HttpSource) FileSize() (int64, error) {

@@ -73,7 +73,7 @@ func TestHttpSourceSparseStore(t *testing.T) {
 		buf = buf[:n]
 
 		if !CheckTestFile(buf, test.offset) {
-			t.Errorf("\"%s\" doesn't match test file at %d", n, 0)
+			t.Errorf("\"%s\" doesn't match test file at %d", buf, test.offset)
 		}
 
 	}
