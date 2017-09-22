@@ -85,7 +85,7 @@ func (fs *HttpSource) ReadAt(p []byte, off int64) (n int, err error) {
 	request.SetRequestURI( fs.url.String() )
 
 	// Byte ranges are inclusive...
-	fmt.Printf("Reading %d-%d from %s\n", off, off+int64(cap(p))-1, fs.url.String())
+	//fmt.Printf("Reading %d-%d from %s\n", off, off+int64(cap(p))-1, fs.url.String())
 	request.Header.SetByteRange( int(off), int(off)+cap(p)-1 )
 
 	response := fasthttp.AcquireResponse()
@@ -125,25 +125,25 @@ func (fs *HttpSource) ReadAt(p []byte, off int64) (n int, err error) {
 }
 
 func (fs *HttpSource) FileSize() (int64, error) {
-	// Don't know if this always works
-	request, _ := http.NewRequest("GET", fs.url.String(), nil)
-	request.Header = map[string][]string{
-		"Range": {"bytes=0-0"},
-	}
 
-	client := http.Client{}
-	response, err := client.Do(request)
+	//startTime := time.Now()
+	request := fasthttp.AcquireRequest()
+	request.SetRequestURI( fs.url.String() )
+	request.Header.SetByteRange( 0,0 )
+
+	response := fasthttp.AcquireResponse()
+	err := fs.client.Do(request, response)
+
 	if err != nil {
 		return int64(-1), err
 	} else if response == nil {
 		return int64(-1), fmt.Errorf("Received no response")
 	}
 
-	defer response.Body.Close()
-
 	//TODO: Check status
 
-	content_range := response.Header["Content-Range"]
+	content_range := response.Header.Peek("Content-Range")
+
 	if content_range == nil {
 
 		return int64(-1), fmt.Errorf("Response header didn't have Content-Range: %v", response.Header)
@@ -161,8 +161,9 @@ func (fs *HttpSource) FileSize() (int64, error) {
 		// return int64( l ),nil
 	}
 
+
 	// Extract the Header
-	splits := strings.Split(content_range[0], "/")
+	splits := strings.Split(string(content_range), "/" )
 	if len(splits) != 2 {
 		return int64(-1), fmt.Errorf("Couldn't parse the Content-Range header: ", content_range)
 	}
@@ -172,7 +173,11 @@ func (fs *HttpSource) FileSize() (int64, error) {
 	if err != nil {
 		return int64(-1), fmt.Errorf("Couldn't extract content length from \"%s\": %s", splits[1], err.Error())
 	}
-	//fmt.Println("Got content length", l)
+	fmt.Println("Got content length", l)
+
+	fasthttp.ReleaseResponse(response)
+	fasthttp.ReleaseRequest(request)
+
 	return int64(l), nil
 }
 
