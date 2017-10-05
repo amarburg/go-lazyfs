@@ -66,27 +66,26 @@ func init() {
 type HttpSource struct {
 	url url.URL
 
-	client	fasthttp.Client
+	client fasthttp.Client
 }
 
 func OpenHttpSource(url url.URL) (hsrc *HttpSource, err error) {
 	h := HttpSource{url: url,
-		client:   fasthttp.Client{},
+		client: fasthttp.Client{},
 	}
 
 	return &h, nil
 }
 
-
 func (fs *HttpSource) ReadAt(p []byte, off int64) (n int, err error) {
 
 	startTime := time.Now()
 	request := fasthttp.AcquireRequest()
-	request.SetRequestURI( fs.url.String() )
+	request.SetRequestURI(fs.url.String())
 
 	// Byte ranges are inclusive...
 	//fmt.Printf("Reading %d-%d from %s\n", off, off+int64(cap(p))-1, fs.url.String())
-	request.Header.SetByteRange( int(off), int(off)+cap(p)-1 )
+	request.Header.SetByteRange(int(off), int(off)+cap(p)-1)
 
 	response := fasthttp.AcquireResponse()
 	err = fs.client.Do(request, response)
@@ -109,14 +108,13 @@ func (fs *HttpSource) ReadAt(p []byte, off int64) (n int, err error) {
 	response.BodyWriteTo(buffer)
 	responseLength := response.Header.ContentLength()
 
-	copy(p,buffer.Bytes()[:responseLength])
+	copy(p, buffer.Bytes()[:responseLength])
 
-	dt := time.Since( startTime )
+	dt := time.Since(startTime)
 	promHttpResponseSize.With(prom.Labels{
 		"root": fs.url.String()}).Observe(float64(len(p)))
 	promHttpDuration.With(prom.Labels{
 		"root": fs.url.String()}).Observe(float64(dt.Nanoseconds()) / 1000.0)
-
 
 	fasthttp.ReleaseResponse(response)
 	fasthttp.ReleaseRequest(request)
@@ -128,8 +126,8 @@ func (fs *HttpSource) FileSize() (int64, error) {
 
 	//startTime := time.Now()
 	request := fasthttp.AcquireRequest()
-	request.SetRequestURI( fs.url.String() )
-	request.Header.SetByteRange( 0,0 )
+	request.SetRequestURI(fs.url.String())
+	request.Header.SetByteRange(0, 0)
 
 	response := fasthttp.AcquireResponse()
 	err := fs.client.Do(request, response)
@@ -160,9 +158,8 @@ func (fs *HttpSource) FileSize() (int64, error) {
 		// return int64( l ),nil
 	}
 
-
 	// Extract the Header
-	splits := strings.Split(string(content_range), "/" )
+	splits := strings.Split(string(content_range), "/")
 	if len(splits) != 2 {
 		return int64(-1), fmt.Errorf("Couldn't parse the Content-Range header: ", content_range)
 	}

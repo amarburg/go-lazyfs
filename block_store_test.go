@@ -1,14 +1,16 @@
 package lazyfs
 
 import "testing"
+
 //import "net/url"
 import "io"
 import "github.com/amarburg/go-lazyfs-testfiles"
+
 //import "github.com/amarburg/go-lazyfs-testfiles/http_server"
 
 func TestBlockStore(t *testing.T) {
 	src, _ := OpenLocalFileSource(LocalFilesRoot, lazyfs_testfiles.AlphabetFile)
-	fs, err := OpenBlockStore(src,8)
+	fs, err := OpenBlockStore(src, 8)
 
 	if fs == nil {
 		t.Fatal("BlockStore doesn't exist")
@@ -42,6 +44,7 @@ func TestBlockStore(t *testing.T) {
 	}
 
 }
+
 //
 // func TestHttpSourceSparseStore(t *testing.T) {
 //

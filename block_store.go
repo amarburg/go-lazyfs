@@ -1,8 +1,8 @@
 package lazyfs
 
 import (
- 	"fmt"
- 	"io"
+	"fmt"
+	"io"
 )
 
 //=====================================
@@ -29,41 +29,40 @@ type BlockStore struct {
 func OpenBlockStore(source FileSource, bits uint) (*BlockStore, error) {
 
 	fs := BlockStore{
-					source: source,
-					blocks: make(map[uint][]byte),
-					blockSizeBits: bits,
-					blockSize: int64(1<<bits),
-		}
+		source:        source,
+		blocks:        make(map[uint][]byte),
+		blockSizeBits: bits,
+		blockSize:     int64(1 << bits),
+	}
 
 	return &fs, nil
 }
 
-func computeBlocks( off int64, sz int, bits uint ) (startBlock uint, endBlock uint) {
-	startBlock = uint(off>>bits)
-	endBlock   = uint((off + int64(sz))>>bits + 1)
+func computeBlocks(off int64, sz int, bits uint) (startBlock uint, endBlock uint) {
+	startBlock = uint(off >> bits)
+	endBlock = uint((off+int64(sz))>>bits + 1)
 
 	return startBlock, endBlock
 }
 
-
 //=====================================
 func (fs *BlockStore) ReadAt(p []byte, off int64) (n int, err error) {
 
-	startBlock, endBlock := computeBlocks( off, cap(p), fs.blockSizeBits)
+	startBlock, endBlock := computeBlocks(off, cap(p), fs.blockSizeBits)
 
 	// Get any blocks we might need
 	for i := startBlock; i < endBlock; i++ {
-		if _,has := fs.blocks[i]; has == false {
+		if _, has := fs.blocks[i]; has == false {
 			//fmt.Printf("Need to read block %d\n", i)
 			fs.blocks[i] = make([]byte, fs.blockSize)
-			n,_ = fs.source.ReadAt( fs.blocks[i], int64(i)*fs.blockSize )
+			n, _ = fs.source.ReadAt(fs.blocks[i], int64(i)*fs.blockSize)
 
 			//fmt.Println( fs.blocks[i])
 		}
 	}
 
-	endByte := off+int64(cap(p))
-	sz,_ := fs.FileSize()
+	endByte := off + int64(cap(p))
+	sz, _ := fs.FileSize()
 	if endByte > sz {
 		endByte = sz
 	}
@@ -80,7 +79,7 @@ func (fs *BlockStore) ReadAt(p []byte, off int64) (n int, err error) {
 			st = 0
 		}
 
-		en := endByte - int64( i) *fs. blockSize
+		en := endByte - int64(i)*fs.blockSize
 		if en > fs.blockSize {
 			en = fs.blockSize
 		}
@@ -90,7 +89,7 @@ func (fs *BlockStore) ReadAt(p []byte, off int64) (n int, err error) {
 		//fmt.Println(p)
 	}
 
-	return int(endByte-off), nil
+	return int(endByte - off), nil
 
 	// // Check validity
 	// if _, err := fs.HasAt(p, off); err == nil {
@@ -126,12 +125,12 @@ func (fs *BlockStore) WriteAt(p []byte, off int64) (n int, err error) {
 
 func (fs *BlockStore) HasAt(p []byte, off int64) (n int, err error) {
 
-	startBlock, endBlock := computeBlocks( off, cap(p), fs.blockSizeBits)
+	startBlock, endBlock := computeBlocks(off, cap(p), fs.blockSizeBits)
 
-	fmt.Printf("Reading %d bytes at offset %d traverses blocks from %d to %d", cap(p), off, startBlock, endBlock )
+	fmt.Printf("Reading %d bytes at offset %d traverses blocks from %d to %d", cap(p), off, startBlock, endBlock)
 
 	for i := startBlock; i < endBlock; i++ {
-		if _,has := fs.blocks[i]; has == false {
+		if _, has := fs.blocks[i]; has == false {
 			return 0, SparseFileStoreError{"HasAt: Don't have all of the requested blocks"}
 		}
 	}
