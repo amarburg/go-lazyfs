@@ -152,19 +152,19 @@ func (fs *HttpSource) FileSize() (int64,error) {
   content_range := response.Header["Content-Range"]
   if content_range == nil {
 
-		return int64(-1), fmt.Errorf("Response header didn't have Content-Range: %v", response.Header )
+		//return int64(-1), fmt.Errorf("Response header didn't have Content-Range: %v", response.Header )
 
 		// As a fallback, look for content-length
-		// content_length := response.Header["Content-Length"]
-		// if content_length == nil {
-		// 	panic( fmt.Sprintf("Response header didn't have Content-Range or Content-Length: %v", response.Header ))
-		// }
-		//
-		// l,err := strconv.Atoi( content_length[0] )
-		// if err != nil {
-		// 	panic( fmt.Sprintf("Couldn't extract content length from \"%s\": %s", content_length[0], err.Error()))
-		// }
-		// return int64( l ),nil
+		content_length := response.Header["Content-Length"]
+		if content_length == nil {
+			return int64(-1), fmt.Errorf("Response header didn't have Content-Range or Content-Length: %v", response.Header )
+		}
+
+		l,err := strconv.Atoi( content_length[0] )
+		if err != nil {
+			return int64(-1), fmt.Errorf("Couldn't extract content length from \"%s\": %s", content_length[0], err.Error())
+		}
+		return int64( l ),nil
   }
 
   // Extract the Header
