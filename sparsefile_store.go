@@ -14,89 +14,89 @@ func (e SparseFileStoreError) Error() string {
 	return e.Err
 }
 
-
 //=====================================
 type SparseFileStore struct {
-	file *os.File
+	file   *os.File
 	source FileSource
-	has map[int64]bool
+	has    map[int64]bool
 }
 
-func OpenSparseFileStore( source FileSource, root string ) (*SparseFileStore,error) {
-	sz,_ := source.FileSize()
-	f,err := InitializeSparsefile( root + source.Path(), sz )
-	if err != nil { return nil,err }
+func OpenSparseFileStore(source FileSource, root string) (*SparseFileStore, error) {
+	sz, _ := source.FileSize()
+	f, err := InitializeSparsefile(root+source.Path(), sz)
+	if err != nil {
+		return nil, err
+	}
 
-	fs := SparseFileStore{ file: f, source: source, has: make( map[int64]bool, sz ) }
+	fs := SparseFileStore{file: f, source: source, has: make(map[int64]bool, sz)}
 
 	return &fs, err
 }
 
-func InitializeSparsefile( sparsefile string, sz int64 ) (*os.File, error) {
+func InitializeSparsefile(sparsefile string, sz int64) (*os.File, error) {
 	// Fill file with with null
 
-	fileinfo,err := os.Stat( sparsefile )
+	fileinfo, err := os.Stat(sparsefile)
 	if err != nil || fileinfo.Size() != sz {
 
 		//fmt.Println("Creating sparsefile size", sparsefile, sz)
-		os.MkdirAll( filepath.Dir(sparsefile), 0755 )
-		dest,err := os.Create( sparsefile )
+		os.MkdirAll(filepath.Dir(sparsefile), 0755)
+		dest, err := os.Create(sparsefile)
 
 		if err != nil {
-			panic(fmt.Sprintf("Couldn't create sparsefile %s", sparsefile) )
+			panic(fmt.Sprintf("Couldn't create sparsefile %s", sparsefile))
 		}
 
-		zero := &ZeroReader{ size: sz }
-		io.Copy( dest, zero )
+		zero := &ZeroReader{size: sz}
+		io.Copy(dest, zero)
 	}
 
-	file,err := os.OpenFile( sparsefile, os.O_RDWR, 0644 )
+	file, err := os.OpenFile(sparsefile, os.O_RDWR, 0644)
 
-	return file,err
+	return file, err
 }
-
-
 
 type ZeroReader struct {
-  size int64
+	size int64
 }
 
-func (w *ZeroReader) Read( p []byte) (n int, err error) {
-if int64(cap(p)) > w.size {
-	n = int(w.size)
-} else {
-	n = cap(p)
-}
+func (w *ZeroReader) Read(p []byte) (n int, err error) {
+	if int64(cap(p)) > w.size {
+		n = int(w.size)
+	} else {
+		n = cap(p)
+	}
 
-for i := 0; i < n; i++ { p[i] = 0 }
+	for i := 0; i < n; i++ {
+		p[i] = 0
+	}
 
-w.size -= int64(n)
+	w.size -= int64(n)
 
-if w.size == 0 {
-	err = io.EOF
+	if w.size == 0 {
+		err = io.EOF
 	} else {
 		err = nil
 	}
 
-	return n,err
+	return n, err
 }
 
-
 //=====================================
-func (fs *SparseFileStore) ReadAt( p []byte, off int64) (n int, err error) {
+func (fs *SparseFileStore) ReadAt(p []byte, off int64) (n int, err error) {
 	// Check validity
-  if _,err := fs.HasAt(p,off); err == nil  {
-    //fmt.Println("Retrieving from store")
-    return fs.file.ReadAt( p, off )
-  }
+	if _, err := fs.HasAt(p, off); err == nil {
+		//fmt.Println("Retrieving from store")
+		return fs.file.ReadAt(p, off)
+	}
 
-  //fmt.Println( "Need to update store")
-  n,_ = fs.source.ReadAt(p,off)
-  fs.WriteAt(p[:n], off)
+	//fmt.Println( "Need to update store")
+	n, _ = fs.source.ReadAt(p, off)
+	fs.WriteAt(p[:n], off)
 
-  return n, nil
+	return n, nil
 
-  // }
+	// }
 	//
 	// n,err =  fs.HasAt( p, off )
 	// if err != nil {
@@ -107,24 +107,24 @@ func (fs *SparseFileStore) ReadAt( p []byte, off int64) (n int, err error) {
 }
 
 func (fs *SparseFileStore) WriteAt(p []byte, off int64) (n int, err error) {
-	n,err =  fs.file.WriteAt( p, off )
+	n, err = fs.file.WriteAt(p, off)
 
-	for i:=0; i < n; i++ {
-		fs.has[off + int64(i)] = true;
+	for i := 0; i < n; i++ {
+		fs.has[off+int64(i)] = true
 	}
 
 	return n, err
 }
 
-func (fs *SparseFileStore) HasAt( p []byte, off int64 ) (n int, err error) {
-	sz,err := fs.FileSize();
+func (fs *SparseFileStore) HasAt(p []byte, off int64) (n int, err error) {
+	sz, err := fs.FileSize()
 	if off+int64(cap(p)) > sz {
 		n = int(sz - off)
 	} else {
 		n = cap(p)
 	}
 
-	for i:= 0; i < n; i++ {
+	for i := 0; i < n; i++ {
 		//fmt.Println(off+int64(i),"=",fs.has[off+int64(i)])
 		if fs.has[off+int64(i)] == false {
 			return 0, SparseFileStoreError{"HasAt: Don't have all of the requested bytes"}
@@ -134,12 +134,12 @@ func (fs *SparseFileStore) HasAt( p []byte, off int64 ) (n int, err error) {
 	return n, nil
 }
 
-func (fs *SparseFileStore) FileSize() (int64,error) {
-	stat,_ := fs.file.Stat()
-	return stat.Size(),nil
+func (fs *SparseFileStore) FileSize() (int64, error) {
+	stat, _ := fs.file.Stat()
+	return stat.Size(), nil
 }
 
-func (fs *SparseFileStore) Reader() (io.Reader) {
+func (fs *SparseFileStore) Reader() io.Reader {
 	return fs.source.Reader()
 }
 
