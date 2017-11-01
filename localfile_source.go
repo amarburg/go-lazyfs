@@ -50,5 +50,5 @@ func (fs *LocalFileSource) Reader() io.Reader {
 
 // Returns the path to the LocalFileSource
 func (fs *LocalFileSource) Path() string {
-	return fs.path
+	return path.Join(fs.root, fs.path)
 }
