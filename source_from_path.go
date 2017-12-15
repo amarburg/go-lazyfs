@@ -6,7 +6,9 @@ import (
 	"regexp"
 )
 
-func sourceFromPath(path string) (FileSource, error) {
+// Source from path will automatically build an appropriate FileSource
+// depending on whether path is an URL os a local path.
+func SourceFromPath(path string) (FileSource, error) {
 
 	// TODO.  Additional validatation of path
 	if len(path) == 0 {
